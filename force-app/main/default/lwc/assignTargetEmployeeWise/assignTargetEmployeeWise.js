@@ -890,11 +890,9 @@ export default class AssignTargetEmployeeWise extends LightningElement {
                     monthItem.className = monthItem.isDataModified ? "undo" : "";
 
                     const id = monthItem.ParameterId;
-                    const editItems = this.template.querySelectorAll('[data-childid="' + id + '"]');
-                    if (editItems.length >= 1) {
-                        editItems[0].classList.remove('undo');
-                        editItems[0].classList.remove('slds-has-error');
-                        editItems[1].innerHTML = '';
+                    const errorDiv = this.template.querySelector('[data-childid="' + id + '"].slds-form-element__help');
+                    if (errorDiv) {
+                        errorDiv.innerHTML = '';
                     }
                 });
             });
@@ -1177,11 +1175,9 @@ export default class AssignTargetEmployeeWise extends LightningElement {
                     monthItem.className = '';
 
                     const id = monthItem.ParameterId;
-                    const editItems = this.template.querySelectorAll('[data-childid="' + id + '"]');
-                    if (editItems.length >= 1) {
-                        editItems[0].classList.remove('undo');
-                        editItems[0].classList.remove('slds-has-error');
-                        editItems[1].innerHTML = '';
+                    const errorDiv = this.template.querySelector('[data-childid="' + id + '"].slds-form-element__help');
+                    if (errorDiv) {
+                        errorDiv.innerHTML = '';
                     }
                 });
             });

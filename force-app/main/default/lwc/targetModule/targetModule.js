@@ -180,7 +180,7 @@ export default class TargetModule extends LightningElement {
                 if (data == '') {
                     this._EWTarget_value = 0;
                 } else {
-                    this._EWTarget_value = parseFloat(data);
+                    this._EWTarget_value = parseFloat(parseFloat(data).toFixed(2));
                 }
                 resolve('ok');
             }).catch((error) => {
@@ -200,7 +200,7 @@ export default class TargetModule extends LightningElement {
                 if (data == '') {
                     this._EWTarget_value = 0;
                 } else {
-                    this._EWTarget_value = parseFloat(data);
+                    this._EWTarget_value = parseFloat(parseFloat(data).toFixed(2));
                 }
                 resolve('ok');
             }).catch((error) => {
@@ -219,7 +219,7 @@ export default class TargetModule extends LightningElement {
                 if (data == '') {
                     this.EWATarget_value = 0;
                 } else {
-                    this.EWATarget_value = parseFloat(data);
+                    this.EWATarget_value = parseFloat(parseFloat(data).toFixed(2));
                 }
                 resolve('ok');
             }).catch((error) => {
@@ -239,7 +239,7 @@ export default class TargetModule extends LightningElement {
                 if (data == '') {
                     this.EWATarget_value = 0;
                 } else {
-                    this.EWATarget_value = parseFloat(data);
+                    this.EWATarget_value = parseFloat(parseFloat(data).toFixed(2));
                 }
                 resolve('ok');
             }).catch((error) => {
@@ -273,8 +273,10 @@ export default class TargetModule extends LightningElement {
     // 	this.empId = event.detail.value;
     // }
 
+    // Fix getter for EWTarget_value
     get EWTarget_value() {
-        return isNaN(this._EWTarget_value) ? 0 : this._EWTarget_value;
+        const val = isNaN(this._EWTarget_value) ? 0 : this._EWTarget_value;
+        return parseFloat(val.toFixed(2));
     }
 
     get remaining_value() {
