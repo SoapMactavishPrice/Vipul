@@ -1,0 +1,5 @@
+<apex:page controller="SyncQuoteToOpportunity" action="{!getData}">
+    
+    <apex:pageMessages ></apex:pageMessages>
+
+</apex:page>

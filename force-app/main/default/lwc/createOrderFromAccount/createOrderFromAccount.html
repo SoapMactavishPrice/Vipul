@@ -1,0 +1,382 @@
+<template>
+    <lightning-quick-action-panel>
+        <div class="slds-modal__content slds-p-around_medium" style="height: 600px;">
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner size="medium" alternative-text="Loading..."></lightning-spinner>
+            </template>
+
+            <!-- Step 1: Mode Selection -->
+            <template if:true={showModeSelection}>
+                <div class="slds-p-around_medium slds-align_absolute-center">
+                    <lightning-combobox label="Select Mode" value={selectedMode} options={modeOptions}
+                        onchange={handleModeChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-align_absolute-center slds-m-top_medium">
+                    <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                </div>
+            </template>
+
+            <template if:true={showQuoteSelection}>
+                <div class="slds-p-around_medium slds-align_absolute-center">
+                    <lightning-combobox label="Select Existing Order" value={selectedOrderId} options={orderOptions}
+                        onchange={handleQuoteSelection} placeholder="Select an order..." required>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-align_absolute-center slds-m-top_medium">
+                    <lightning-button label="Back" onclick={handleBack}></lightning-button>
+                </div>
+            </template>
+
+            <!-- Step 3: Order Form -->
+            <template if:true={showForm}>
+                <lightning-record-edit-form object-api-name="Order">
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-combobox label="Order Type" value={orderFields.Order_Type__c}
+                                options={orderTypeOptions} onchange={handleOrderTypeChange} data-id="Order_Type__c"
+                                disabled={isOrderTypeDisabled} required>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-record-picker label="Account Name" placeholder="Search Accounts..."
+                                value={orderFields.AccountId} object-api-name="Account" onchange={handleHeaderChange}
+                                data-id="AccountId">
+                            </lightning-record-picker>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-record-picker label="Country" placeholder="Search Country..."
+                                value={orderFields.Country__c} object-api-name="Country__c"
+                                onchange={handleHeaderChange} data-id="Country__c" disabled="true">
+                            </lightning-record-picker>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-combobox label="Currency" value={orderFields.CurrencyIsoCode}
+                                options={picklistOptions.CurrencyIsoCode} data-id="CurrencyIsoCode"
+                                onchange={handleHeaderChange}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-combobox label="Inco Terms" value={orderFields.Inco_Terms__c}
+                                options={picklistOptions.Inco_Terms__c} data-id="Inco_Terms__c"
+                                onchange={handleHeaderChange}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-combobox label="Payment Terms" value={orderFields.Payment_Terms__c}
+                                options={picklistOptions.Payment_Terms__c} data-id="Payment_Terms__c"
+                                onchange={handleHeaderChange}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-combobox label="Status" value={orderFields.Status}
+                                options={picklistOptions.Status} data-id="Status" onchange={handleHeaderChange}
+                                disabled="true">
+                            </lightning-combobox>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-input label="Effective Date" type="date" value={orderFields.EffectiveDate}
+                                data-id="EffectiveDate" onchange={handleHeaderChange}>
+                            </lightning-input>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-input label="PO Number" value={orderFields.PoNumber} data-id="PoNumber"
+                                onchange={handleHeaderChange}>
+                            </lightning-input>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="3" padding="around-small">
+                            <lightning-input label="PO Date" type="date" value={orderFields.PoDate} data-id="PoDate"
+                                onchange={handleHeaderChange}>
+                            </lightning-input>
+                        </lightning-layout-item>
+
+                        <template if:true={showCheckList}>
+                            <lightning-layout-item size="3" padding="around-small">
+                                <lightning-record-picker
+                                    label="Check List"
+                                    placeholder="Select Check List"
+                                    object-api-name="Check_List__c"
+                                    display-field="Name"
+                                    value={selectedCheckListId}
+                                    onchange={handleCheckListChange}>
+                                </lightning-record-picker>
+                            </lightning-layout-item>
+                        </template>
+
+                    </lightning-layout>
+                </lightning-record-edit-form>
+
+                <!-- Order Line Items Table -->
+                <div class="slds-m-top_large">
+                    <div class="slds-text-align_center slds-p-around_medium" style="margin-top: -35px;">
+                        <h3 class="slds-text-heading_medium slds-text-weight_bold" style="margin-top: 8px"></h3>
+                    </div>
+
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Product Name</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_center">List Price</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Quantity</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Quality</th>
+                                    <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Packaging</th>
+                                    <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Packing Type</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Sales Price</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Comm Type</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Comm Value</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_center">Comm %</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">SP with Inco</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Freight Value</th>
+                                    
+                                <!-- <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Final Sales Price</th> -->
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Total Price</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_left">Discount</th>
+                                <th style="background-color:#0176D3;color:white;white-space:auto;"
+                                    class="slds-text-align_center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={orderLineItems} for:item="item" for:index="index">
+                                <tr key={item.id}>
+                                    <!-- Product Name -->
+                                    <td style="width: 325px;;">
+                                        <template if:true={item.prodId}>
+                                            <c-look-up-component object-api-name="Product2" icon-name="standard:account"
+                                                data-index={item.index} style="width: 300px;" data-label="prodId"
+                                                index={item.index} default-record-id={item.prodId}
+                                                return-fields="ProductCode" family={item.prodFamily} sort-column="Name"
+                                                display-fields="" query-fields="['Name,ProductCode']"
+                                                onrecordselection={lookupRecord} filter={currencyfilter}
+                                                onfocus={lookupRecord}></c-look-up-component>
+                                        </template>
+                                        <template if:false={item.prodId}>
+                                            <c-look-up-component object-api-name="Product2" icon-name="standard:account"
+                                                data-index={item.index} style="width: 300px;" data-label="prodId"
+                                                return-fields="ProductCode" family={item.prodFamily} sort-column="Name"
+                                                display-fields="" query-fields="['Name,ProductCode']"
+                                                onrecordselection={lookupRecord} filter={currencyfilter}
+                                                onfocus={lookupRecord}></c-look-up-component>
+                                        </template>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="ListPrice"
+                                            data-index={index} value={item.ListPrice} style="width: 71px;"
+                                            disabled="true">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="Quantity" data-index={index}
+                                            value={item.Quantity} onchange={handleScoreChange} style="width: 60px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="quality" data-index={index}
+                                            value={item.quality} onchange={handleScoreChange} style="width: 60px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td>
+                                        <lightning-combobox value={item.PackagingType} label="PackagingType"
+                                            variant="label-hidden" options={optionsPackagingType}
+                                            data-label="PackagingType" data-index={index} onchange={handleScoreChange}
+                                            style="width: 87px;">
+                                        </lightning-combobox>
+                                    </td>
+
+                                    <td>
+                                        <lightning-combobox value={item.PackagingTypeValues} label="PackagingTypeValues"
+                                            variant="label-hidden" options={optionsPackagingTypeValues}
+                                            data-label="PackagingTypeValues" data-index={index} onchange={handleScoreChange}
+                                            style="width: 87px;">
+                                        </lightning-combobox>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="UnitPrice"
+                                            data-index={index} value={item.UnitPrice} onchange={handleScoreChange}
+                                            style="width: 69px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td>
+                                        <lightning-combobox value={item.CommissionType} label="CommissionType"
+                                            variant="label-hidden" options={optionsCommissionType}
+                                            data-label="CommissionType" data-index={index} onchange={handleScoreChange}
+                                            style="width: 87px;" disabled={item.isDisabled}>
+                                        </lightning-combobox>
+                                    </td>
+
+                                    <td class="slds-text-align_right" style="padding-right: 18px;padding-left: 10px;">
+                                        <lightning-input variant="label-hidden" data-label="commissionval"
+                                            data-index={index} value={item.commissionval} onchange={handleScoreChange}
+                                            disabled={item.isvaldisabled} style="width:76px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_right" style="padding-right: 18px;padding-left: 10px;">
+                                        <lightning-input variant="label-hidden" data-label="commissionper"
+                                            data-index={index} value={item.commissionper} onchange={handleScoreChange}
+                                            disabled={item.isperdisabled} style="width:60px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="totalprice"
+                                            data-index={index} value={item.totalprice} disabled="true">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="freightval"
+                                            data-index={index} value={item.freightval} onchange={handleScoreChange}
+                                            disabled={item.isFreightDisabled} style="width: 72px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <!-- <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="finalprice"
+                                            data-index={index} value={item.finalprice} disabled="true"
+                                            style="width:76px;">
+                                        </lightning-input>
+                                    </td> -->
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="totalpricefinal"
+                                            data-index={index} value={item.totalpricefinal} disabled="true"
+                                            style="width:76px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_right">
+                                        <lightning-input variant="label-hidden" data-label="discountval" data-index={index}
+                                            value={item.Discount__c} onchange={handleScoreChange} style="width: 60px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-button-icon icon-name="utility:add" alternative-text="Add Product"
+                                            onclick={addQuoteLineItem} data-index={index}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon icon-name="utility:delete"
+                                            alternative-text="Remove Product" title="Remove Product"
+                                            onclick={removeQuoteLineItem} data-index={index}
+                                            class="slds-m-left_xx-small">
+                                        </lightning-button-icon>
+                                        <lightning-button-icon icon-name="utility:preview"
+                                            alternative-text="Preview Prices" onclick={handleShowPricesClick}
+                                            title="Check Last 5 Prices" class="slds-m-left_xx-small" data-index={index}>
+                                        </lightning-button-icon>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="slds-m-top_large slds-align_absolute-center">
+                    <lightning-button label="Cancel" onclick={handleCancel}
+                        class="slds-m-right_small"></lightning-button>
+                    <lightning-button label="Back" onclick={handleBack} class="slds-m-right_small"></lightning-button>
+                    <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+                </div>
+            </template>
+
+            <!-- Price Preview Modal -->
+            <template if:true={isOpenFileView}>
+                <template if:true={lastFivePrices}>
+                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                        aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header" style="padding-top: 7px;padding-bottom: 4px">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                    style="background:black" title="Close" onclick={handleOkay}>
+                                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                                        onclick={handleClose} size="x-small"></lightning-icon>
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Last Five
+                                    Price
+                                </h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1"
+                                style="padding-top: 6px;padding-bottom: 4px;padding-left:5px;padding-right:5px;height:500px">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped"
+                                    style="width:100%;text-align:Center;">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th class="" scope="col"
+                                                style="width: 15%; background-color: #0176D3; color: white; white-space: auto;">
+                                                Enquiry Name
+                                            </th>
+                                            <th class="" scope="col"
+                                                style="width: 15%; background-color: #0176D3; color: white; white-space: auto;">
+                                                List Price
+                                            </th>
+                                            <th class="" scope="col"
+                                                style="width: 15%; background-color: #0176D3; color: white; white-space: auto;">
+                                                Quantity
+                                            </th>
+                                            <th class="" scope="col"
+                                                style="width: 15%; background-color: #0176D3; color: white; white-space: auto;">
+                                                Sales Price
+                                            </th>
+                                            <th class="" scope="col"
+                                                style="width: 15%; background-color: #0176D3; color: white; white-space: auto;">
+                                                Final Price
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={lastFivePrices} for:index="index" for:item="file">
+                                            <tr key={file.Id}>
+                                                <td>{file.Opportunity.Name}</td>
+                                                <td>{file.ListPrice}</td>
+                                                <td>{file.Quantity}</td>
+                                                <td>{file.UnitPrice}</td>
+                                                <td>{file.Final_Price__c}</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <footer class="slds-modal__footer"
+                                style="padding-top: 7px; padding-bottom: 4px; display: flex; justify-content: center;">
+                                <button class="slds-button slds-button_neutral" onclick={handleClose}
+                                    title="Cancel">Cancel</button>
+                            </footer>
+                        </div>
+                    </section>
+                </template>
+            </template>
+        </Div>
+    </lightning-quick-action-panel>
+</template>

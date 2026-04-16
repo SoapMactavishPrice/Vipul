@@ -1,0 +1,172 @@
+<template>
+    <template if:true={isSubmitting}>
+        <lightning-spinner alternative-text="Submitting Sample Out Request" size="medium">
+        </lightning-spinner>
+    </template>
+
+    <lightning-card>
+
+        <!-- HEADER -->
+        <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-record-picker label="Company Name" value={accountId} object-api-name="Account"
+                    placeholder="Select Company" onchange={handleFieldChange}>
+                </lightning-record-picker>
+            </div>
+
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-record-picker label="Enquiry Name" value={enquiryId} object-api-name="Opportunity"
+                    placeholder="Select Enquiry" onchange={handleFieldChange}>
+                </lightning-record-picker>
+            </div>
+
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-record-picker label="Quote" value={quoteId} object-api-name="Quote"
+                    placeholder="Select Quote" onchange={handleQuoteChange}>
+                </lightning-record-picker>
+            </div>
+
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-record-picker label="Proforma Invoice" value={proformaInvoiceId}
+                    object-api-name="Proforma_Invoice__c" placeholder="Select Proforma Invoice"
+                    onchange={handleProformaChange}>
+                </lightning-record-picker>
+            </div>
+
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-record-picker label="Country" value={countryId} object-api-name="Country__c"
+                    placeholder="Select Country" onchange={handleFieldChange}>
+                </lightning-record-picker>
+            </div>
+
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-record-picker label="Person" value={personId} object-api-name="User"
+                    placeholder="Search User" onchange={handlePersonChange}>
+                </lightning-record-picker>
+            </div>
+        </div>
+
+        <!-- PRODUCTS TABLE -->
+        <div class="slds-p-horizontal_medium">
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
+
+                <thead>
+                    <tr>
+                        <th class="col-check" style="text-align: center;">New Product?</th>
+                        <th class="col-product" style="text-align: center;">Product Name</th>
+                        <th class="col-ci" style="text-align: center;">CI</th>
+                        <th class="col-qty" style="text-align: center;">Quantity (Grams)</th>
+                        <th class="col-packets" style="text-align: center;">Packets</th>
+                        <th class="col-quality" style="text-align: center;">Quality</th>
+                        <th class="col-app" style="text-align: center;">Application</th>
+                        <th class="col-unit" style="text-align: center;">Sample Request From Unit</th>
+                        <th class="col-actions" style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <template for:each={products} for:item="product">
+                        <tr key={product.index}>
+
+                            <!-- Checkbox -->
+                            <td class="slds-text-align_center">
+                                <lightning-input type="checkbox" variant="label-hidden" checked={product.New_Product__c}
+                                    data-index={product.index} onchange={handleCheckboxChange}>
+                                </lightning-input>
+                            </td>
+
+                            <!-- Product -->
+                            <td>
+                                <template if:true={product.New_Product__c}>
+                                    <lightning-input variant="label-hidden" value={product.New_Product_Name__c}
+                                        data-index={product.index} data-label="New_Product_Name__c"
+                                        onchange={handleTextInputChange}>
+                                    </lightning-input>
+                                </template>
+
+                                <template if:false={product.New_Product__c}>
+                                    <c-look-up-component object-api-name="Product2" icon-name="standard:product"
+                                        default-record-id={product.prodId} data-index={product.index}
+                                        query-fields="['Name','CI_no__c']" onrecordselection={lookupRecord}>
+                                    </c-look-up-component>
+                                </template>
+                            </td>
+
+                            <!-- CI -->
+                            <td>
+                                <template if:true={product.New_Product__c}>
+                                    <lightning-input variant="label-hidden" value={product.New_Product_CI_No__c}
+                                        data-index={product.index} data-label="New_Product_CI_No__c"
+                                        onchange={handleTextInputChange}>
+                                    </lightning-input>
+                                </template>
+
+                                <template if:false={product.New_Product__c}>
+                                    <lightning-input variant="label-hidden" value={product.ciNo} disabled>
+                                    </lightning-input>
+                                </template>
+                            </td>
+
+                            <!-- Quantity -->
+                            <td>
+                                <lightning-input variant="label-hidden" value={product.quantity}
+                                    data-index={product.index} data-label="quantity"
+                                    onchange={handleProductFieldChange}>
+                                </lightning-input>
+                            </td>
+
+                            <!-- Packets -->
+                            <td>
+                                <lightning-input variant="label-hidden" value={product.packet}
+                                    data-index={product.index} data-label="packet" onchange={handleProductFieldChange}>
+                                </lightning-input>
+                            </td>
+
+                            <!-- Quality -->
+                            <td>
+                                <lightning-input variant="label-hidden" value={product.quality}
+                                    data-index={product.index} data-label="quality" onchange={handleProductFieldChange}>
+                                </lightning-input>
+                            </td>
+
+                            <!-- Application -->
+                            <td>
+                                <lightning-input variant="label-hidden" value={product.application}
+                                    data-index={product.index} data-label="application"
+                                    onchange={handleProductFieldChange}>
+                                </lightning-input>
+                            </td>
+
+                            <!-- Unit -->
+                            <td>
+                                <c-unit-lookup data-index={product.index} onunitselect={handleUnitSelected}
+                                    onunitclear={handleUnitCleared}>
+                                </c-unit-lookup>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="slds-text-align_center">
+                                <lightning-button-icon icon-name="utility:add" onclick={addProduct}>
+                                </lightning-button-icon>
+
+                                <lightning-button-icon icon-name="utility:delete" data-index={product.index}
+                                    onclick={removeProduct} class="slds-m-left_x-small">
+                                </lightning-button-icon>
+                            </td>
+
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="slds-p-around_medium slds-text-align_center">
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button label="Submit" variant="brand" class="slds-m-left_small" onclick={handleSubmitSampleOut}
+                disabled={isSubmitting}>
+            </lightning-button>
+        </div>
+
+    </lightning-card>
+</template>

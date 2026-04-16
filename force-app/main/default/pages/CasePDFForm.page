@@ -1,0 +1,145 @@
+<apex:page controller="CasePDFController" renderAs="PDF" showHeader="False" contentType="application/pdf">
+    <head></head>
+    <body style="fo nt-family: Arial, sans-serif; font-size: 11px; line-height: 1.1; margin: 20px;">
+        <h1 style="text-align: center; font-size: 16px; margin-bottom: 10px;">Corrective Action and Preventive Action (CAPA) Plan</h1>
+        
+        <p style="text-align: center; font-style: italic; margin-bottom: 20px;">
+            The following form is used to document a single or a series of related deficiencies and the corresponding CAPA plan.<br/>
+            The fields included in this form may be modified or deleted based on the organization's specific needs.
+        </p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px;">
+            <tr>
+                <td style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">
+                    Protocol Title / Code
+                </td>
+                <td style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left;">{!caseRecord.CaseNumber}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">
+                    Qualified / Principal Investigator
+                </td>
+                <td style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left;">{!caseRecord.Owner.Name}</td>
+            </tr>
+        </table>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+            <tr>
+                <td colspan="4" style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: center; font-weight: bold; background-color: #f2f2f2; color: #000;" >
+                    ISSUE
+                </td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">Date Occurred<sup>1</sup></th>
+                <td style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left;" width="30%"><apex:outputText value=" {!createdDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></td>
+                <!--<th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">Date Identified<sup>1</sup></th>
+                <td style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left;" width="30%"></td> -->
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Description</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Description}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Impact</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Impact__c}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">References</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Parent.CaseNumber}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Root Cause</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Root_Cause__c}</td>
+            </tr>
+        </table>
+        
+        
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+            <tr>
+                <td colspan="4" style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: center; font-weight: bold; background-color: #f2f2f2; color: #000;" >
+                    CORRECTIVE ACTION
+                </td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">Date Implemented<sup>2</sup></th>
+                <td style="border: 1px solid #000; padding: 4px;" width="30%"><apex:outputText value=" {!correctiveImpDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></td>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">Date Completed<sup>2</sup></th>
+                <td style="border: 1px solid #000; padding: 4px;" width="30%"><apex:outputText value=" {!correctiveComDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Description</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Corrective_Description__c}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Person's Responsible</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Person_Responsible__c}</td>
+            </tr>
+        </table>
+        
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+            <tr>
+                <td colspan="4" style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: center; font-weight: bold; background-color: #f2f2f2; color: #000;" >
+                    PREVENTIVE ACTION
+                </td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">Date Implemented<sup>2</sup></th>
+                <td style="border: 1px solid #000; padding: 4px;" width="30%"><apex:outputText value=" {!preventiveImpDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></td>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;" width="20%">Date Completed<sup>2</sup></th>
+                <td style="border: 1px solid #000; padding: 4px;" width="30%"><apex:outputText value=" {!preventiveComDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Description</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Description_Prevent__c}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #000; padding: 4px; vertical-align: top; text-align: left; font-weight: bold; background-color: #f2f2f2; color: #000;">Person's Responsible</th>
+                <td style="border: 1px solid #000; padding: 4px;" colspan="3">{!caseRecord.Person_Responsible_Prevent__c}</td>
+            </tr>
+        </table>
+        
+        
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 8px 0;">
+            <tr>
+                <td colspan="4" style="border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; background-color: #f2f2f2; color: #000;">
+                    MANAGEMENT COMMENTS
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" style="border: 1px solid #000; height: 50px;">{!caseRecord.Management_Comments__c}</td>
+            </tr>
+        </table>
+        
+        <p style="font-size: 11px; margin-top: 10px;">
+            1: If a distinct date is not available, a rough range of dates may be entered.<br/>
+            2: Date may be a projected date if the plan is written prior to implementation/completion. Write "N/A" if not applicable.
+        </p>
+        
+        <table style="width: 100%; border-collapse: separate; border-spacing: 10px 10px; font-size: 11px;">
+            <tr>
+                <td style="width: 33%;text-align: center;">{!caseRecord.Account.Name}</td>
+                <td style="width: 33%;text-align: center;">{!caseRecord.Owner.Name}</td>
+                <td style="width: 33%;text-align: center;">{!caseRecord.Owner.Name}</td>
+            </tr>
+            <tr>
+                <td style="border-top: 1px solid #000; padding-top: 4px;text-align: center;">CAPA Raised By</td>
+                <td style="border-top: 1px solid #000; padding-top: 4px;text-align: center;">CAPA Written By</td>
+                <td style="border-top: 1px solid #000; padding-top: 4px;text-align: center;">CAPA Approved By</td>
+            </tr>
+        </table>
+        
+        
+        <div style="width: 100%; font-size: 11px; margin-top: 10px; display: flex; justify-content: space-between;">
+            <!--<div>
+                N2 CAPA Plan Template<br />
+                Version Date: 19 Aug 2016 - last reviewed April 2017
+            </div>
+             <div style="text-align: right;">
+                Page 1 of 1
+            </div> -->
+        </div>
+    </body>
+</apex:page>

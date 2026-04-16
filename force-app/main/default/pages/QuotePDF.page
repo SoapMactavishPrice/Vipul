@@ -1,0 +1,394 @@
+<apex:page controller="QuotationPDFController" renderAs="PDF" showHeader="False" contentType="application/pdf">
+    
+    <h3 style="text-align:Center;" >
+        QUOTATION
+    </h3>
+    
+    <body>
+        
+        <table class="pdf-table1" style="width:100%; border-collapse: collapse;" >
+            <tr>
+                
+                <td style="width: 60%; border-bottom:none;border-right:0px;!important; border-top:1px solid #000;border-left:1px solid #000;padding: 5px;">
+                    <div class="normalText" style="text-align:left; vertical-align:top;">
+                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                            <span style="font-size:10pt;text-align:left;font-weight:bold;">VIPUL ORGANICS LTD.</span><br/>
+                            <span style="font-size:8pt;text-align:left;">B-603 6TH FLOOR Kaledonia</span><br/>
+                            <span style="font-size:8pt;text-align:left;">Sahar Airport Road</span><br/>
+                            <span style="font-size:8pt;text-align:left;">Andheri (E), Mumbai-400069 Maharashtra</span><br/>
+                            <span style="font-size:8pt;text-align:left;">INDIA</span><br/>
+                            <span style="font-size:8pt;text-align:left;">Tel.: 912266139999 &nbsp;&nbsp; Fax: +91-22-66139977/5</span><br/>
+                            <span style="font-size:8pt;">E-Mail: marketing@vipulorganics.com / Website: www.vipulorganics.com</span><br/> 
+                            <span style="font-size:8pt;">GST NO.: 27AAACV1710B1Z0</span><br/>
+                        </span>
+                    </div>
+                    
+                </td>
+                <td style="width: 40%; border-right:1px solid #000; border-bottom:none; text-align:Right; border-left:0px;border-right:1px solid #000;border-top:1px solid #000; !important">
+                    <div> 
+                        <apex:image alt="Vipul" url="{!$Resource.VipulLogo}" height="80px" style="text-align:Right;" />
+                    </div>
+                </td>	
+            </tr>
+            
+        </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-0px;font-size: 11px;">
+            
+            <tr class="">
+                <td class="label" style="border: 1px solid #000;padding:0px; width:40%;font-size:12px;">
+                    <table style="position: relative;display: unset;top: 0px;padding: 5px;">
+                        <tr>
+                            <td style="width:130px;">
+                                <span style="font-weight: bold;font-size:12;">Consignee : </span> 
+                                <span style="font-size:12;">{!quo.Account.Name}, </span><br/>
+                                <span style="font-size:12;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!ConAddress}</span><br/>
+                                <!--<span style="font-size:12;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!quo.Account.Country__r.Name}</span> --> 
+                            </td> 
+                        </tr>
+                        
+                    </table>
+                    
+                    <table style ="border:1px solid #000;width:100%;pading:0px;border-left:none;border-right:none;font-size:12px;">
+                        <tr>
+                            <td style="font-weight: bold;">
+                                
+                                <div style="width: 100%; text-align: left;display: inline-block;">
+                                    
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;line-height:1.5;"><b>Customer Code :</b> {!quo.Customer_Code__c}</div>
+                                    
+                                </div></td>
+                            
+                        </tr>
+                    </table>
+                    
+                    <apex:outputPanel rendered="{!isInternational}">
+                    <table style ="border:1px solid #000;width:100%;padding:0px;border-left:none;border-right:none;border-top:none;">
+                        <tr>
+                            <td>
+                                <div style="width: 100%; text-align: left;display: inline-block;">
+                                    
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;line-height:1"><b>Port of Loading :</b> {!quo.Port_of_Loading__c}</div><br/>
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;line-height:1"><b>Port of Destination :</b> {!quo.Port_of_Destination__c}</div><br/>
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;line-height:1"><b>Delivery Address :</b> {!DelAddress} <!--{!quo.Delivery_Address__c}--> </div>
+                                    
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    </apex:outputPanel>
+                    
+                    <apex:outputPanel rendered="{!isInternational}">
+                    <table style ="border:1px solid #000;width:100%;pading:0px;border-left:none;border-right:none;border-top:none;border-bottom:none;font-size:12px;">
+                        <tr>
+                            <td>
+                                
+                                <div style="width: 100%; text-align: left;display: inline-block;">
+                                    
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;"><b>Mode of Shippment :</b> {!quo.Mode_of_Shipment__c}</div>
+                                    
+                                </div></td>
+                        </tr>
+                    </table>
+                    </apex:outputPanel>
+                    
+                    <apex:outputPanel rendered="{!isDomestic}">
+                    <table style ="border:1px solid #000;width:100%;pading:0px;border-left:none;border-right:none;border-top:none;border-bottom:none;font-size:12px;">
+                        <tr>
+                            <td>
+                                
+                                <div style="width: 100%; text-align: left;display: inline-block;">
+                                    
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;"><b>Delivery Address :</b> {!DelAddress} <!--{!quo.Delivery_Address__c}--> </div>
+                                    
+                                </div></td>
+                        </tr>
+                    </table>
+                    </apex:outputPanel>
+                    
+                </td>
+                
+                <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                    
+                    <div style="position:relative;top:10px"> 
+                        <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                            <tr style="position:relative;top:-10px">
+                                <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block;">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>SQ No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> {!quo.QuoteNumber}</div>
+                                    </div>
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> <apex:outputText value=" {!expDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></div>
+                                        
+                                    </div>
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Validity &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> <apex:outputText value=" {!valDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></div>
+                                        
+                                    </div>
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Country of Origin&nbsp;&nbsp;
+                                            &nbsp;&nbsp;:</b> {!quo.Country_of_Origin__c}</div>
+                                        
+                                    </div>
+                                    
+                                    <apex:outputPanel rendered="{!isInternational}">
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Lead Time &nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> {!quo.Lead_Time__c}</div>
+                                        
+                                        
+                                    </div>
+                                    </apex:outputPanel>
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Incoterms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> {!quo.Inco_Terms__c}</div>
+                                        
+                                    </div>
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Payment Terms &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;:</b> {!PaymentTermsLabel}</div>
+                                        
+                                    </div>
+                                    
+                                    <div style="width: 100%; text-align: left;display: inline-block">
+                                        
+                                        <div style="display: table-cell; width: 33%; padding: 0px; text-align: left;line-height:2;"><b>Currency &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b> {!quo.CurrencyIsoCode}</div>
+                                        
+                                    </div>
+                                    
+                                    
+                                    
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                
+                
+            </tr>
+            
+        </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0; margin-top:-0px;font-size: 8pt;">
+            
+            
+            <tr class="">
+                
+                <td class="label" style="border: 1px solid #000;padding:0px; width:40%;font-size:8pt;">
+                    
+                    <table style ="border:1px solid #000;width:100%;pading:0px;border-left:none;border-right:none;border-top:none;border-bottom:1px;font-size:8pt;">
+                        <tr>
+                            <td style="font-weight: bold;" >
+                                
+                                Kind Attention : {!quo.Contact.Name}
+                                
+                            </td>
+                        </tr>
+                        <tr >
+                            <td style="border-top:1px solid #000;Padding:0px;">
+                                Thank you very much for your inquiry and for considering Vipul Organics Ltd as vendor for supply of chemicals. As per your requirement, we are 
+                                happy to quote for the same as under.
+                                
+                            </td>
+                        </tr>
+                        
+                    </table>
+                    
+                    
+                </td>
+                
+                
+                
+            </tr>
+        </table> 
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0; margin-top:-0px;font-size: 11px;text-align:Center;">
+            <tr >
+                
+                <th style="border: 1px solid black;padding:0;">Sr No.</th>
+                
+                <th style="border: 1px solid black;">Product Discription</th>
+                
+                <th style="border: 1px solid black;"> CI </th>
+                
+                <th style="border: 1px solid black;">Packing</th>
+                
+                <th style="border: 1px solid black;">Quality</th>
+                
+                <th style="border: 1px solid black;">Quantity in KG</th>
+                
+                <th style="border: 1px solid black;">Price </th>
+                
+                <th style="border: 1px solid black;">Value </th>
+                
+            </tr>
+            
+            
+            <apex:variable value="{!1}" var="srno"/>
+            <apex:repeat value="{!qlList}" var="q">
+                
+                <tr>
+                    <td style="border: 1px solid black;">{!srno} </td>
+                    
+                    <td style="border: 1px solid black;"> {!q.Description}</td>
+                    
+                    <td style="width:160px;border: 1px solid black;">{!q.Product2.CI_no__c} </td>
+                    
+                    <td style="border: 1px solid black;"> {!q.Packing__c} {!packingTypeMap[q.Packing_Type__c]}</td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Quality__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Quantity} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Sales_Price_with_Inco_Terms__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Total_Price__c}</td>
+                    
+                </tr>
+                
+                <apex:variable value="{!srno+1}" var="srno"/>
+            </apex:repeat>
+            
+            <tr>
+                <td colspan="7" style="text-align: right; border: 1px solid black;border-right: 0px solid black"><b>Total Value:</b></td>
+                <td style="border: 1px solid black;border-left: 0px solid black">{!ROUND(quo.Total_Value__c,2)}</td>
+            </tr>
+                
+        </table>
+        
+        <apex:outputPanel rendered="{!isDomestic}">
+        <table class="table-container" style=" width: 100%;border-collapse: collapse; margin: 20px 0 ; margin-top:-20px;font-size: 11px;">
+            
+            <tr class="">
+                <td class="label" style="border: 1px solid #000;padding:0px; width:40%;font-size:12px;">
+                    
+                    <table style ="width:100%;pading:0px;border-left:none;border-right:none;font-size:12px;">
+                        <tr>
+                            <td style="font-weight: bold;">
+                                
+                                <div style="width: 100%; text-align: left;display: inline-block;">
+                                    
+                                    <div style="display: table-cell; width: 60%; padding: 5px; text-align: left;line-height:1.5;"><b>Transporter Name :</b> {!quo.Transporter_Name__c}</div>
+                                    
+                                </div></td>
+                            
+                        </tr>
+                    </table>
+                    
+
+                </td>
+                
+                <td style="border: 1px solid #000; width:20%;font-size:11px;border-collapse: collapse;">
+                    <table style=" width: 100%; Border-collapse: collapse; ">
+                        <!--
+                        <tr >
+                            <td style=" width: 20%;border: 1px solid black;font-size: 11px;border-left:none;border-top:none;"><b>Total Value</b>
+                            </td>
+                            <td style=" width: 20%;  border: 1px solid black;font-size: 11px;border-right:none;border-top:none;text-align:Center;">{!ROUND(quo.TotalPrice,2)}
+                            </td>
+                        </tr>
+						-->
+                        <tr >
+                            <td style=" width: 20%;border: 1px solid black;font-size: 11px;border-left:none;border-top:none;"><b>GST Amount (18%)</b>
+                            </td>
+                            <td style=" width: 20%;  border: 1px solid black;font-size: 11px;border-right:none;border-top:none;text-align:Center;">{!TEXT(quo.GST_Amount__c)}
+                            </td> 
+                        </tr>
+                        <tr>
+                            <td style=" width: 20%;border: 1px solid black;font-size: 11px;border-left:none;border-top:none"><b>Transport Value</b>
+                            </td>
+                            <td style=" width: 20%;  border: 1px solid black;font-size: 11px;border-right:none;border-top:none;text-align:Center;">{!quo.Transport_Value__c}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style=" width: 20%;border: 1px solid black;font-size: 11px;border-left:none;border-top:none"><b>TCS Value (0.1%)</b>
+                            </td>
+                            <td style=" width: 20%;  border: 1px solid black;font-size: 11px;border-right:none;border-top:none; text-align:Center;">{!quo.TCS_Value__c}
+                            </td> 
+                        </tr>
+                        <tr>
+                            <td style=" width: 20%;border: 1px solid black;font-size: 11px;border-left:none;border-top:none;border-bottom:none"><b>Grand Total</b>
+                            </td>
+                            <td style=" width: 20%;  border: 1px solid black;font-size: 11px;border-right:none;border-top:none;border-bottom:none;text-align:Center;">{!quo.Grand_Total__c}
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+                
+            </tr>
+            
+        </table>
+        </apex:outputPanel>
+        
+               
+        
+        <table class="table-container" style="width: 100%; border-collapse: collapse; margin: 20px 0; margin-top: -20px; font-size: 11px; padding: 0px">
+            <tr class="">
+                <td class="label" style="border: 1px solid #000; padding: 5px; width: 60%; font-size: 11px;">
+                    <div class="normalText" style="text-align: left; vertical-align: top;">
+                        <span class="header normalText font_weight" style="line-height: 60%; font-size: 16px;">
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Special Note :</b> All bank charges outside India will be borne by the customer and such charges should not be deducted from our payment. 
+                                We should receive full invoice amount in our bank account and Vipul Organics Ltd is liable to pay the bank charges which are applicable in India only.</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Delivery Period :</b> Same will be confirmed during finalization of order</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Inspection :</b> All the expense of Inspection/TPIA will be in your scope</span><br/>
+                            <!--<span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Freight :</b> Included in quoted price up to Uchchhal Section-Kukarmunda Village. Unloading of material at destination is in yourscope. 
+                                In case of any specific instruction for dispatch, differential freight will be to your account</span><br/> -->
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+        <!--
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">FOR VIPUL ORGANICS LTD. </span><br/>
+                                <span style="display:block; margin-top:50px; font-size:8pt;text-align:left;font-weight:bold;">AUTHORISED SIGNATORY</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">FOR {!quo.Account.Name} </span><br/>
+                                <span style="display:block; margin-top:50px; font-size:8pt;text-align:left;font-weight:bold;">AUTHORISED SIGNATORY</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                    </td>
+
+                </tr>
+            </table> -->
+        
+        
+    </body>
+    
+</apex:page>

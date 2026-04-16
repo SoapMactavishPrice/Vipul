@@ -1,0 +1,174 @@
+<template>
+    <lightning-card>
+        <h4 style="text-align: center; font-size: 30px; padding-bottom: 10px;">Quote Sales Price Approval</h4>
+                
+        <!-- Main content container with padding for fixed buttons -->
+        <div class="content-container">
+            <template if:true={quotes}>
+                <template for:each={quotes} for:item="quote">
+                    <div key={quote.id} class="slds-box slds-m-bottom_medium">
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-2">
+                                <h3 class="slds-text-heading_small" style="font-weight: bold; padding-bottom: 6px;">
+                                    <lightning-icon icon-name="standard:quotes" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                    {quote.name}
+                                    <template if:true={quote.quoteNumber}>
+                                        <span style="color: #706e6b; font-weight: normal;">({quote.quoteNumber})</span>
+                                    </template>
+                                    - <span style="font-weight: normal;">{quote.accountName}</span>
+                                </h3>
+                            </div>
+                        </div>
+
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="table-layout: fixed; width: 100%; margin-top: 12px;">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 200px; word-wrap: break-word;">Product Name</th>
+                                    <th scope="col" style="width: 100px; text-align: center;">Quantity</th>
+                                    <th scope="col" style="width: 120px; text-align: center;">List Price</th>
+                                    <th scope="col" style="width: 120px; text-align: center;">Sales Price</th>
+                                    <th scope="col" style="width: 150px;">Approval Status</th>
+                                    <th scope="col" style="width: 200px;">Approval Comments</th>
+                                    <th scope="col" style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={quote.lineItems} for:item="item">
+                                    <tr key={item.id}>
+                                        <td style="word-wrap: break-word;">
+                                            <div>{item.productName}</div>
+                                            <template if:true={item.productCode}>
+                                                <div style="font-size: 12px; color: #706e6b;">Code: {item.productCode}</div>
+                                            </template>
+                                        </td>
+                                        <td style="text-align: center;">{item.quantity}</td>
+                                        <td style="text-align: center;">{item.formattedListPrice}</td>
+                                        <td style="text-align: center;">
+                                            <lightning-input
+                                                type="number"
+                                                value={item.salesPrice}
+                                                data-parent={quote.id}
+                                                data-id={item.id}
+                                                data-field="salesPrice"
+                                                onchange={handleLineItemChanges}
+                                                variant="label-hidden" step="any"
+                                                min="0">
+                                            </lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-combobox
+                                                name="ApprovalStatus"
+                                                data-parent={quote.id}
+                                                data-id={item.id}
+                                                data-field="approvalStatus"
+                                                value={item.approvalStatus}
+                                                options={statusOptions}
+                                                onchange={handleLineItemChanges}
+                                                variant="label-hidden">
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-input
+                                                value={item.approvalComments}
+                                                data-parent={quote.id}
+                                                data-field="approvalComments"
+                                                data-id={item.id}
+                                                onchange={handleLineItemChanges}
+                                                variant="label-hidden">
+                                            </lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-button
+                                                label="Preview"
+                                                icon-name="utility:preview"
+                                                onclick={handlePreviewClick}
+                                                data-account-id={quote.accountId}
+                                                data-product-id={item.productId}
+                                                data-product-name={item.productName}
+                                                class="slds-m-left_x-small"
+                                                variant="base">
+                                            </lightning-button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+            </template>
+            <template if:false={quotes}>
+                <div class="slds-align_absolute-center slds-m-vertical_large">
+                    <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+                </div>
+            </template>
+        </div>
+        
+        <!-- Fixed Footer Buttons -->
+        <div class="fixed-footer">
+            <div class="slds-align_absolute-center">
+                <lightning-button label="Cancel" onclick={redirectToHome} variant="neutral"></lightning-button>
+                <lightning-button class="slds-m-left_small" label="Save Changes" onclick={saveChanges} variant="brand" disabled={isSaveDisabled}></lightning-button>
+            </div>
+        </div>
+        
+        <!-- Preview Modal -->
+        <template if:true={showPreviewModal}>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closePreviewModal}>
+                            <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Last 5 Sales Prices - {previewProductName}</h2>
+                        <p class="slds-m-top_x-small">Recent sales prices shared with the same customer</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <template if:true={isLoadingRecentPrices}>
+                            <div class="slds-align_absolute-center">
+                                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+                            </div>
+                        </template>
+                        <template if:false={isLoadingRecentPrices}>
+                            <template if:true={hasRecentPrices}>
+                                <table class="slds-table slds-table_bordered slds-table_striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" style="width: 30%;">Quote</th>
+                                            <th scope="col" style="width: 15%;">List Price</th>
+                                            <th scope="col" style="width: 15%;">Sales Price</th>
+                                            <th scope="col" style="width: 10%;">Quantity</th>
+                                            <!-- <th scope="col" style="width: 15%;">Total Price</th> -->
+                                            <th scope="col" style="width: 15%;">Created Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={recentPrices} for:item="price">
+                                            <tr key={price.id}>
+                                                <td>{price.quoteName} (Q-{price.quoteNumber})</td>
+                                                <td style="text-align: right;">{price.formattedListPrice}</td>
+                                                <td style="text-align: right;">{price.formattedUnitPrice}</td>
+                                                <td style="text-align: center;">{price.quantity}</td>
+                                                <!-- <td style="text-align: right;">{price.formattedTotalPrice}</td> -->
+                                                <td>{price.formattedCreatedDate}</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </template>
+                            <template if:false={hasRecentPrices}>
+                                <div class="slds-align_absolute-center slds-text-color_weak">
+                                    <p>No previous sales prices found for this product and customer.</p>
+                                </div>
+                            </template>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <button class="slds-button slds-button_neutral" onclick={closePreviewModal}>Close</button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </lightning-card>
+</template>

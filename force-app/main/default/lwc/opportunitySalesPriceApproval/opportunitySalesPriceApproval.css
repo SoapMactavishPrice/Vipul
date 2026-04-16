@@ -1,0 +1,50 @@
+.content-container {
+        padding-bottom: 80px;
+    }
+    
+    .fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 16px;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        border-top: 1px solid #dddbda;
+        margin-left: -1rem;
+        margin-right: -1rem;
+    }
+    
+    .slds-modal {
+        z-index: 9001;
+    }
+    
+    .slds-backdrop {
+        z-index: 9000;
+    }
+    
+    /* Badge styling */
+    .slds-badge_success {
+        background-color: #4bca81;
+        color: #080707;
+    }
+    
+    .slds-badge_inverse {
+        background-color: #706e6b;
+        color: white;
+    }
+    
+    /* Input field styling */
+    .slds-table td lightning-input,
+    .slds-table td lightning-combobox {
+        width: 100%;
+    }
+    
+    .slds-table td lightning-input input,
+    .slds-table td lightning-combobox select {
+        width: 100%;
+        border: 1px solid #dddbda;
+        border-radius: 0.25rem;
+        padding: 0.25rem;
+    }

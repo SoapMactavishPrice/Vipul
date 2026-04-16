@@ -1,0 +1,13 @@
+/* Example: Add a custom style for the timeline accordion */
+.slds-accordion__section {
+    margin-bottom: 10px;
+}
+
+.slds-accordion__heading {
+    background-color: #f4f6f9;
+    font-weight: bold;
+}
+
+.slds-accordion__section:last-child {
+    margin-bottom: 0;
+}

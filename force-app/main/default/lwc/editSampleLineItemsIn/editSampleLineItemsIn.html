@@ -1,0 +1,62 @@
+<template>
+    <lightning-card>
+        <div class="title-center">Edit Sample In</div>
+        <template if:true={sampleInLineItems.length}>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Customer Product Name</th>
+                        <th scope="col">CI</th>
+                        <th scope="col">S.In Ref No</th>
+                        <th scope="col">Application</th>
+                        <th scope="col">Annual Quantity</th>
+                        <th scope="col">Sample Sent to Unit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={sampleInLineItems} for:item="item" for:index="index">
+                        <tr key={item.Id}>
+                            <td>{item.Customer_s_Product_Name__c}</td>
+                            <td>
+                                <lightning-input type="text" value={item.C_I__c} data-field="C_I__c" data-index={index}
+                                    onchange={handleChange} style="margin-top: -16px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.S_In_Ref_No__c} data-field="S_In_Ref_No__c"
+                                    data-index={index} onchange={handleChange}
+                                    style="margin-top: -16px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.Application__c} data-field="Application__c"
+                                    data-index={index} onchange={handleChange}
+                                    style="margin-top: -16px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="number" value={item.Annual_Qty_of_Business__c}
+                                    data-field="Annual_Qty_of_Business__c" data-index={index} onchange={handleChange}
+                                    style="margin-top: -16px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-record-picker label="Select Unit" object-api-name="Unit_Master__c"
+                                    display-field="Name" value-field="Id" placeholder="Search Unit..."
+                                    variant="label-hidden" onchange={handleUnitChange} data-index={index}
+                                    value={item.Sample_Sent_to_Unit__c} style="width: 100%;">
+                                </lightning-record-picker>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <div class="slds-m-top_medium slds-text-align_center"
+                style="display: flex; justify-content: center; gap: 8px;">
+                <lightning-button variant="brand" label="Save" onclick={handleSave}
+                    disabled={isLoading}></lightning-button>
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+            </div>
+        </template>
+        <template if:false={sampleInLineItems.length}>
+            <p>No Sample In Line Items Found</p>
+        </template>
+    </lightning-card>
+</template>

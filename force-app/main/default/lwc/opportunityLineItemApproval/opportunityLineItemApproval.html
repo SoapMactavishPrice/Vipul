@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Approval Requests">
+        <template if:true={opportunityLineItems.length}>
+            <lightning-datatable 
+                key-field="Id" 
+                data={opportunityLineItems} 
+                columns={columns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+        <template if:false={opportunityLineItems.length}>
+            <p class="slds-text-body_regular slds-p-around_medium">No records to approve</p>
+        </template>
+    </lightning-card>
+
+    <template if:true={selectedRecordId}>
+        <div class="slds-m-top_medium">
+            <lightning-button label="Approve" onclick={handleApprove} variant="brand"></lightning-button>
+            <lightning-button label="Reject" onclick={handleReject} variant="destructive" class="slds-m-left_small"></lightning-button>
+        </div>
+    </template>
+</template>

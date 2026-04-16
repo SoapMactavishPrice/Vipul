@@ -1,0 +1,995 @@
+<apex:page controller="VipulSalesOrderController" renderAs="PDF" showHeader="False" contentType="application/pdf">
+    <body>
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:0px;font-size: 11px; ">
+            <table class="pdf-table1" border="1" cellpadding="0" cellspacing="0" style="width:100%" >
+                <tr>
+                    
+                    <td style="width: 60%; border-bottom:none; padding:5px; border-right:0px; !important">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">VIPUL ORGANICS LTD.</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">B-603 6TH FLOOR Kaledonia</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Sahar Airport Road</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Andheri (E), Mumbai-400069 Maharashtra</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">INDIA</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Tel.: 912266139999</span><br/>
+                                <span style="font-size:8pt;font-weight:bold;">Fax: +91-22-66139977/5</span><br/>
+                                <span style="font-size:8pt;font-weight:bold;">E-Mail: marketing@vipulorganics.com / Website: www.vipulorganics.com</span><br/> 
+                                
+                            </span>
+                        </div>
+                        
+                    </td>
+                    <td style="width: 40%; border-right:1px; border-bottom:none; text-align:Right; border-left:0px;border-right:1px solid black; !important">
+                        <div> 
+                        <apex:image alt="Vipul" url="{!$Resource.VipulLogo}" height="100px" style="text-align:Right;" />
+                        </div>
+                    </td>	
+                </tr>
+                
+            </table>
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-0px;font-size: 11px;">
+                <tr>
+                    <td style="width: 100%; text-align:Center; border:1px solid black;cellpadding=0px">
+                        <span style="font-size:14pt;text-align:Center;font-weight:bold;text-decoration:underline;line-height:1.5;">Sales Order/ Proforma Invoice</span>
+                    </td>
+                    
+                </tr>
+                
+            </table>
+            
+            
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px;">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:60%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Consignee: </span><br/><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">{!pi.Account_Name__r.Name }</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">{!ConAddress }</span><br/><br/>
+                               <!-- <span style="font-size:8pt;text-align:left;font-weight:bold;">{!pi.Account_Name__r.Country__r.Name }</span><br/><br/> -->
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">{!pi.Contact_Name__r.Name }  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mob: {!pi.Contact_Name__r.MobilePhone }</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Tel: {!pi.Contact_Name__r.Phone }</span><br/>
+                                <span style="font-size:8pt;font-weight:bold;">E-Mail: {!pi.Contact_Name__r.Email }</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;line-height:1; ">
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">SO No.: {!pi.SO_No__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">SO Date <apex:outputText value=" : {!PiDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">Revision No: {!pi.Revision_Number__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">SF No.: {!pi.Proforma_Invoice_Number__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">Buyer's Ref: {!pi.Buyer_s_Ref__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">Date: <apex:outputText value=" : {!BuyersDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></span><br/>
+                                            
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+            
+            
+            <apex:outputPanel rendered="{!isInternational}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:60%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;"><b>Buyer:</b> {!pi.Buyer__r.Name }</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Notify:</b> {!pi.Notify_Information__c}</span><br/>
+                                            
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+            </apex:outputPanel>
+            
+            <apex:outputPanel rendered="{!isInternational}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:1.5;">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:60%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;"><b>Pre.Carriage by:</b> {!pi.Pre_Carriage_by__c } </span><br/>
+                               <!-- <span style="font-size:8pt;text-align:left;">Place of Receipt by Pre-Carrier: {!pi.Place_of_Receipt_by_Pre_Carrier__c }</span><br/> -->
+                                <span style="font-size:8pt;text-align:left;"><b>Port of Loading:</b> {!pi.Port_of_Loading__c }</span><br/>
+                                <span style="font-size:8pt;text-align:left;"><b>Vessel/Flight No.:</b> {!pi.Vessel_Flight_No__c }</span><br/>
+                                <span style="font-size:8pt;text-align:left;"><b>Port of Discharge:</b> {!pi.Port_of_Discharge__c }</span><br/>
+                               <!-- <span style="font-size:8pt;text-align:left;"><b>Final Destination:</b> {!pi.Final_Destination__c }</span><br/> -->
+                                <span style="font-size:8pt;text-align:left;"><b>Country of Final Destinaton:</b> {!pi.Country_of_Final_Destination__r.Name }</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Country of Origin:</b> {!pi.Country_of_Origin__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Incoterms:</b> {!pi.Inco_Terms__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Delivery Schedule:</b> {!pi.Delivery_Schedule__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Payment Terms:</b> {!paymentTermsLabel}</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Currency:</b> {!pi.CurrencyIsoCode }</span><br/>
+                                            
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+            </apex:outputPanel>
+            
+            
+            <apex:outputPanel rendered="{!isDomestic}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:1.5;">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:60%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                
+                                <span style="font-size:8pt;text-align:left;"><b>Delivery Address:</b> {!DelAddress } </span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Country of Origin:</b> {!pi.Country_of_Origin__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Incoterms:</b> {!pi.Inco_Terms__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Payment Terms:</b> {!paymentTermsLabel}</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Currency:</b> {!pi.CurrencyIsoCode }</span><br/>
+                                            
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+            </apex:outputPanel>
+                
+            
+            
+            
+            <apex:outputPanel rendered="{!isInternational}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:40%;font-size:11px;height:20px">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0; margin-top:-20px;font-size: 11px;text-align:Center;">
+                <tr >
+                    
+                    <th style="border: 1px solid black;padding:0;">Sr No</th>
+                    
+                    
+                    <th style="border: 1px solid black;"> Description of Goods </th>
+                    
+                    <th style="border: 1px solid black;">Quality </th>
+                    
+                    <th style="border: 1px solid black;">Packaging Type</th>
+                    
+                    <th style="border: 1px solid black;">Packing Size </th>
+                    
+                    <th style="border: 1px solid black;">HSN</th>
+                    
+                    <th style="border: 1px solid black;">Qty </th>
+                    
+                    <th style="border: 1px solid black;">UOM </th>
+                    
+                    <th style="border: 1px solid black;">Price {!pi.CurrencyIsoCode} </th>
+                    
+                    <th style="border: 1px solid black;">Amount {!pi.CurrencyIsoCode} </th>
+                    
+                </tr>
+                
+                <apex:variable var="rows" value="{!0}"/>
+                <apex:repeat value="{!piList}" var="q">
+                
+                <tr>
+                    <apex:variable var="rows" value="{!rows+1}"/>
+                    
+                    <td style="border: 1px solid black;">{!rows} </td>
+                    
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Line_Item_Description__c}</td>
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Quality__c} </td>
+                    
+                    <td style="border: 1px solid black;"> {!IF(
+                        NOT(ISBLANK(q.Packing_Type__c)) && 
+                        NOT(ISBLANK(packingTypeMap[q.Packing_Type__c])),
+                        packingTypeMap[q.Packing_Type__c],
+                        q.Packing_Type__c
+                        )}</td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Packing__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Product__r.HSN_No__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Quantity__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Product__r.Unit__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Sales_Price__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Total_Price__c} </td>
+                    
+                    
+                    
+                    </tr>
+                </apex:repeat>                    
+                <!-- <apex:variable value="{!srno}" var="srno"/> -->
+                
+                <tr>
+                    <td colspan="6" style="text-align: right; border-left: 1px solid black">Total Quantity:</td>
+                    <td>{!ROUND(pi.Total_Quantity__c, 2)}</td>
+                    <td colspan="2" style="text-align: right;">Total [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.Total_Value__c, 2)}</td>
+                </tr>
+                <tr>
+                    <td colspan="9" style="text-align: right; border-left: 1px solid black">Freight [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black"></td>
+                </tr>
+                
+                <tr>
+                    <td colspan="9" style="text-align: right; border-left: 1px solid black">Doc. Total [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.Total_Value__c, 2)}</td>
+                </tr>
+                
+                
+                
+            </table>
+            </apex:outputPanel>
+            
+            
+            
+            
+            <apex:outputPanel rendered="{!isDomestic}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0; margin-top:-20px;font-size: 11px;text-align:Center;">
+                <tr >
+                    
+                    <th style="border: 1px solid black;padding:0;">Sr No</th>
+                    
+                    
+                    <th style="border: 1px solid black;"> Description of Goods </th>
+                    
+                    <th style="border: 1px solid black;">Quality </th>
+                    
+                    <th style="border: 1px solid black;">Packaging Type</th>
+                    
+                    <th style="border: 1px solid black;">Packing Size </th>
+                    
+                    <th style="border: 1px solid black;">HSN</th>
+                    
+                    <th style="border: 1px solid black;">Qty </th>
+                    
+                    <th style="border: 1px solid black;">UOM </th>
+                    
+                    <th style="border: 1px solid black;">Price {!pi.CurrencyIsoCode} </th>
+                    
+                    <th style="border: 1px solid black;">Amount {!pi.CurrencyIsoCode} </th>
+                    
+                </tr>
+                
+                <apex:variable var="rows" value="{!0}"/>
+                <apex:repeat value="{!piList}" var="q">
+                
+                <tr>
+                    <apex:variable var="rows" value="{!rows+1}"/>
+                    
+                    <td style="border: 1px solid black;">{!rows} </td>
+                    
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Line_Item_Description__c}</td>
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Quality__c} </td>
+                    
+                    <td style="border: 1px solid black;"> {!IF(
+                        NOT(ISBLANK(q.Packing_Type__c)) && 
+                        NOT(ISBLANK(packingTypeMap[q.Packing_Type__c])),
+                        packingTypeMap[q.Packing_Type__c],
+                        q.Packing_Type__c
+                        )} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Packing__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Product__r.HSN_No__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Quantity__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Product__r.Unit__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Sales_Price__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Total_Price__c} </td>
+                    
+                    
+                    
+                    </tr>
+                </apex:repeat>                    
+                <!-- <apex:variable value="{!srno}" var="srno"/> -->
+                
+                <tr>
+                    <td colspan="6" style="text-align: right; border-left: 1px solid black">Total Quantity:</td>
+                    <td>{!ROUND(pi.Total_Quantity__c, 2)}</td>
+                    <td colspan="2" style="text-align: right;">Total [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.Total_Value__c, 2)}</td>
+                </tr>
+                
+                <tr>
+                    <td colspan="9" style="text-align: right; border-left: 1px solid black">Transport Value [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.Transport_Value__c, 2)}</td>
+                </tr>
+                
+                <tr>
+                    <td colspan="9" style="text-align: right; border-left: 1px solid black">GST Amount [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.GST_Amount__c, 2)}</td>
+                </tr>
+                
+                <tr>
+                    <td colspan="9" style="text-align: right; border-left: 1px solid black">TCS Value [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.TCS_Value__c, 2)}</td>
+                </tr>
+                
+                <tr>
+                    <td colspan="9" style="text-align: right; border-left: 1px solid black">Doc. Total [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black">{!ROUND(pi.Grand_Total__c, 2)}</td>
+                </tr>
+                
+                
+                
+            </table>
+            </apex:outputPanel>
+            
+            
+            
+            
+            
+          <!--  <apex:outputPanel rendered="{!isDomestic}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;">
+                
+                    <tr >
+                    <td style="padding-left: 200px;text-align: right; border-left: 1px solid black;border-top: 1px solid black;">GST Amount [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black;border-top: 1px solid black">{!ROUND(pi.GST_Amount__c, 2)}</td>
+                    </tr>
+                	<tr>
+                    <td style="text-align: right; border-left: 1px solid black;">Transport Value [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black;">{!ROUND(pi.Transport_Value__c, 2)}</td>
+                    </tr>
+                <tr>
+                    <td style="text-align: right; border-left: 1px solid black;">TCS Value [{!pi.CurrencyIsoCode}]:</td>
+                    <td style="border-right: 1px solid black;">{!ROUND(pi.TCS_Value__c, 2)}</td>
+                </tr>
+            </table>
+            </apex:outputPanel> -->
+            
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:40%;font-size:11px;height:20px">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            
+            
+            
+            
+            
+            
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Delivery Date: <apex:outputText value=" {!ShipmentDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Delivery Address: {!DelAddress} </span><br/>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            
+            <apex:outputPanel rendered="{!isInternational}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">FOR VIPUL ORGANICS LTD. </span><br/>
+                                <span style="display:block; margin-top:50px; font-size:8pt;text-align:left;font-weight:bold;">AUTHORISED SIGNATORY</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">FOR {!pi.Account_Name__r.Name } </span><br/>
+                                <span style="display:block; margin-top:50px; font-size:8pt;text-align:left;font-weight:bold;">AUTHORISED SIGNATORY</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                    </td>
+
+                </tr>
+            </table>
+            </apex:outputPanel>
+        </table>
+        
+        <div style="page-break-before: always;"></div>
+        
+         <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px;">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:60%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Consignee: </span><br/><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">{!pi.Account_Name__r.Name }</span><br/>
+                                <!-- <span style="font-size:8pt;text-align:left;font-weight:bold;">{!pi.Account_Name__r.State__r.Name },</span><br/> -->
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">{!ConAddress }</span><br/><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">{!pi.Contact_Name__r.Name }  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mob: {!pi.Contact_Name__r.MobilePhone }</span><br/>
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">Tel: {!pi.Contact_Name__r.Phone }</span><br/>
+                                <span style="font-size:8pt;font-weight:bold;">E-Mail: {!pi.Contact_Name__r.Email }</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;line-height:1; ">
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">SO No.: {!pi.SO_No__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">SO Date <apex:outputText value=" : {!PiDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">Revision No: {!pi.Revision_Number__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">SF No.: {!pi.Proforma_Invoice_Number__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">Buyer's Ref: {!pi.Buyer_s_Ref__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;font-weight:bold;">Date: <apex:outputText value=" : {!BuyersDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></span><br/>
+                                            
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+            
+        
+        <apex:outputPanel rendered="{!isInternational}">
+            <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:60%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;"><b>Buyer:</b> {!pi.Buyer__r.Name }</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Notify:</b>{!pi.Notify_Information__c }</span><br/>
+                                            
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+        </apex:outputPanel>
+            
+            
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:40%;font-size:11px;height:20px">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        
+
+        
+       <!-- <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0; margin-top:-20px;font-size: 11px;text-align:Center;">
+                <tr >
+                    
+                    <th style="border: 1px solid black;padding:0;">SN</th>
+                    
+                    
+                    <th style="border: 1px solid black;"> Description of Goods </th>
+                    
+                    <th style="border: 1px solid black;">Quality </th>
+                    
+                    <th style="border: 1px solid black;">Packaging Type</th>
+                    
+                    <th style="border: 1px solid black;">Packing Size </th>
+                    
+                    <th style="border: 1px solid black;">HSN</th>
+                    
+                    <th style="border: 1px solid black;">Qty </th>
+                    
+                    <th style="border: 1px solid black;">UOM </th>
+                    
+                    <th style="border: 1px solid black;">Price {!pi.CurrencyIsoCode} </th>
+                    
+                    <th style="border: 1px solid black;">Amount {!pi.CurrencyIsoCode} </th>
+                    
+                </tr>
+                
+                <apex:variable var="rows" value="{!0}"/>
+                <apex:repeat value="{!piList}" var="q">
+                
+                <tr>
+                    <apex:variable var="rows" value="{!rows+1}"/>
+                    
+                    <td style="border: 1px solid black;">{!rows} </td>
+                    
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Line_Item_Description__c}</td>
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Quality__c} </td>
+                    
+                    <td style="border: 1px solid black;"> {!q.Packing_Type__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Product__r.Packing__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:"> </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Quantity__c}</td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Product__r.Unit__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Sales_Price__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:">{!q.Total_Price__c} </td>
+                    
+                    
+                    
+                    </tr>
+                </apex:repeat>                    
+            
+        </table> -->
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px;">
+                <tr class="">
+                    <td class="label" style="border: 1px solid #000; width:40%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;line-height:1; ">
+                                            <span style="font-size:8pt;text-align:left;"><b>Bank Details:</b> {!pi.Company_Bank__r.Name }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Beneficiary:</b> {!pi.Company_Bank__r.Beneficiary_Name__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Swift Code:</b> {!pi.Company_Bank__r.SWIFT_Code__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Account Number:</b> {!pi.Company_Bank__r.Account_Number__c }</span><br/>
+                                             
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+        
+        <table class="table-container" style="width: 100%; border-collapse: collapse; margin: 20px 0; margin-top: -20px; font-size: 11px; padding: 0px">
+            <tr class="">
+                <td class="label" style="border: 1px solid #000; padding: 5px; width: 60%; font-size: 11px;">
+                    <div class="normalText" style="text-align: left; vertical-align: top;">
+                        <span class="header normalText font_weight" style="line-height: 60%; font-size: 16px;">
+                            <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>Pallet Packing:</b> {!pi.Pallet_Packing__c}</span><br/>
+                           <!-- <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>Quality:</b> 
+                                <apex:variable var="nonBlankCount" value="{!0}"/>
+                                <apex:repeat value="{!piList}" var="item">
+                                    <apex:outputText rendered="{!NOT(ISBLANK(item.Quality__c))}">
+                                        <apex:variable var="nonBlankCount" value="{!nonBlankCount + 1}"/>
+                                    </apex:outputText>
+                                </apex:repeat>
+                                <apex:variable var="currentCount" value="{!0}"/>
+                                <apex:repeat value="{!piList}" var="item">
+                                    <apex:outputText rendered="{!NOT(ISBLANK(item.Quality__c))}">
+                                        <apex:outputText rendered="{!currentCount > 0}">,&nbsp;</apex:outputText>
+                                        <apex:variable var="currentCount" value="{!currentCount + 1}"/>
+                                        {!item.Quality__c}
+                                    </apex:outputText>
+                                </apex:repeat>
+                            </span><br/> 
+                            <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>BANK DETAILS:</b> {!pi.Company_Bank__r.Name}, <br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!pi.Company_Bank__r.Beneficiary_Name__c},
+                                
+                            </span><br/>-->
+                            <apex:outputPanel rendered="{!isInternational}">
+                            <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>Nomination Agent:</b> {!pi.Nomination_Agent__c}</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>PreShipment Inspection:</b> {!pi.PreShipment_Inspection__c}</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>PSS:</b> {!pi.PSS__c}</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 2;"><b>QC sample in Shipment:</b> {!pi.QC_sample_in_Shipment__c}</span><br/><br/>
+                            </apex:outputPanel>
+                            
+                            <span style="font-size: 10pt; text-align: left; line-height: 2;"><b>Note: Any dispute related to this proforma shall be subject to Mumbai jurisdiction.</b></span><br/>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+        <table class="table-container" style="width: 100%; border-collapse: collapse; margin: 20px 0; margin-top: -20px; font-size: 11px; padding: 0px">
+            <tr class="">
+                <td class="label" style="border: 1px solid #000; padding: 5px; width: 60%; font-size: 11px;">
+                    <div class="normalText" style="text-align: left; vertical-align: top;">
+                        <span class="header normalText font_weight" style="line-height: 60%; font-size: 16px;">
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Special Note :</b> All bank charges outside India will be borne by the customer and such charges should not be deducted from our payment. 
+                                We should receive full invoice amount in our bank account and Vipul Organics is liable to pay the bank charges which are applicable in India only.</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Delivery Period :</b> Same will be confirmed during finalization of order</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Inspection :</b> All the expense of Inspection/TPIA will be in your scope</span><br/>
+                            <span style="font-size: 8pt; text-align: left; line-height: 1.5;"><b>Freight :</b> Freight frame as Included in quoted price. Unloading of Material at destination is in your scope.
+                            In case of any specific instruction for dispatch, differential freight will be to your account.</span><br/><br/>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+        <apex:outputPanel rendered="{!isInternational}">
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">FOR VIPUL ORGANICS LTD. </span><br/>
+                                <span style="display:block; margin-top:50px; font-size:8pt;text-align:left;font-weight:bold;">AUTHORISED SIGNATORY</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                        
+                    </td>
+                    
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:40%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;font-weight:bold;">FOR {!pi.Account_Name__r.Name } </span><br/>
+                                <span style="display:block; margin-top:50px; font-size:8pt;text-align:left;font-weight:bold;">AUTHORISED SIGNATORY</span><br/>
+                                
+                            </span>
+                        </div>
+                        
+                    </td>
+
+                </tr>
+            </table>
+            </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{!isInternational}">
+        
+        <div style="page-break-before: always;"></div>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-0px;font-size: 11px;">
+                <tr>
+                    <td style="width: 100%; text-align:Center; border:1px solid black;cellpadding=0px">
+                        <span style="font-size:14pt;text-align:Center;font-weight:bold;text-decoration:underline;line-height:2;">Shipment Instruction</span>
+                    </td>
+                    
+                </tr>
+                
+            </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:2;">
+            <tr class="">
+                
+                <td class="label" style="border: 1px solid #000;padding:0px; width:50%;font-size:11px;">
+                    <div class="normalText" style="text-align:left; ">
+                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;padding:5px; ">
+                            <span style="font-size:8pt;text-align:left;"><b>PI Date:</b> <apex:outputText value=" : {!BuyersDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText></span><br/>
+                            <span style="font-size:8pt;text-align:left;padding:5px;"><b>Revision Date:</b> <apex:outputText value=" : {!RevisedDate}" ><apex:param value="dd/MM/yyyy" /></apex:outputText> </span><br/>
+                            
+                        </span>
+                    </div>
+                    
+                    <table style ="border:1px solid #000;width:100%;pading:0px;border-left:none;border-right:none;border-bottom:none;font-size:11px;">
+                        <tr>
+                            <td>
+                            <div class="normalText" style="text-align:left;">
+                                <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                    <span style="font-size:8pt;text-align:left;line-height:1.5;padding:5px;"><b>Name of Concerned Marketing Person:</b> {!pi.Owner.Name }</span><br/>
+                                </span>
+                            </div>
+                                </td>
+                        </tr>
+                    </table>
+                </td>
+                <td class="label" style="border: 1px solid #000;padding: 5px; width:50%;font-size:11px;">
+                    <div style="position:relative;top:10px"> 
+                        <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                            <tr style="position:relative;top:-10px">
+                                <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                    <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                        <span style="font-size:8pt;text-align:left;"><b>Port of Discharge: </b>{!pi.Port_of_Discharge__c }</span><br/>
+                                        <span style="font-size:8pt;text-align:left;"><b>Port of Final Destination: </b>{!pi.Country_of_Final_Destination__r.Name } </span><br/>
+                                        <span style="font-size:8pt;text-align:left;"><b>Shipment Type: </b>{!pi.Shipment_Type__c }</span><br/>
+                                        <span style="font-size:8pt;text-align:left;"><b>Container Type: </b>{!pi.Container_Type__c }</span><br/>
+                                        <span style="font-size:8pt;text-align:left;"><b>Goods Type: </b>{!pi.Goods_Type__c }</span><br/>
+                                        
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>	
+            </tr>
+        </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:2;">
+            <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:50%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;"><b>Export Order File No. and Date:</b> {!PiNo }</span><br/>
+                            </span>
+                        </div>                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:50%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Detention Free Period Required: </b>{!pi.Detention_Free_Period_Required__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Extended Period: </b>{!pi.Extended_Period__c }</span><br/>   
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:2;">
+            <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:50%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                <span style="font-size:8pt;text-align:left;"><b>Buyer Purchase Order No.: </b>{!pi.Buyer__r.Name }</span><br/>
+                                <span style="font-size:8pt;text-align:left;"><b>Signed Copy of Sales Contract: </b>{!pi.Signed_Copy_of_Sales_Order__c }</span><br/>
+                                <span style="font-size:8pt;text-align:left;"><b>Consignee Name and Address: </b>{!pi.Account_Name__r.Name } - {!ConAddress }</span><br/>
+                                <span style="font-size:8pt;text-align:left;"><b>Buyer Name and Address Other than Consignee: </b>{!pi.Notify_Information__c }</span><br/>                                
+                            </span>
+                        </div>                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:50%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Pallet Packing: </b>{!pi.Pallet_Packing__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Type of Pallet: </b>{!pi.Type_of_Pallet__c }</span><br/>   
+                                            <span style="font-size:8pt;text-align:left;"><b>Vol Logo on Packing: </b>{!pi.Vol_Logo_on_Packing__c }</span><br/>   
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:2;">
+            <tr class="">
+                
+                <td class="label" style="border: 1px solid #000; width:50%;font-size:11px;">
+                    <div class="normalText" style="text-align:left; vertical-align:top;">
+                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                            <span style="font-size:8pt;text-align:left;padding:5px;"><b>ECGC Status: </b>{!pi.ECGC_Status__c }</span><br/> 
+                            <span style="font-size:8pt;text-align:left;padding:5px;"><b>Country: </b>{!pi.Country_Status__c }</span><br/>
+                            <span style="font-size:8pt;text-align:left;padding:5px;"><b>Country Rating: </b>{!pi.Country_Rating__c }</span><br/>
+                        </span>
+                    </div>    
+                    
+                   <!-- <table style ="border:1px solid #000;width:100%;pading:10px;border-left:none;border-right:none;border-bottom:none;font-size:11px;">
+                        <tr>
+                            <td>
+                                <div class="normalText" style="text-align:left; vertical-align:top;">
+                                    <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                                        <span style="font-size:8pt;text-align:left;"><b>PSS: </b>{!pi.PSS__c }</span><br/> 
+                                        <span style="font-size:8pt;text-align:left;"><b>PreShipment Inspection: </b>{!pi.PreShipment_Inspection__c }</span><br/> 
+                                        <span style="font-size:8pt;text-align:left;"><b>QC Sample in Shipment: </b>{!pi.QC_sample_in_Shipment__c }</span><br/> 
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table> -->
+                    
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:50%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>Commission if Any: </b>{!pi.Commission_if_Any__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Previous Order File No.: </b></span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Document to be Send: </b>{!pi.Document_to_be_Send__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Any Other Specification: </b>{!pi.Any_Other_Specification__c }</span><br/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0 ; margin-top:-20px;font-size: 11px; padding: 0px;line-height:2;">
+                <tr class="">
+                    
+                    <td class="label" style="border: 1px solid #000;padding:5px; width:50%;font-size:11px;">
+                        <div class="normalText" style="text-align:left; vertical-align:top;">
+                            <span class="header normalText font_weight" style="line-height:60%; font-size:16px; ">
+                               <!-- <span style="font-size:8pt;text-align:left;"><b>Payment Terms: </b>{!pi.Payment_Terms__c }</span><br/> -->
+                                <span style="font-size:8pt;text-align:left;"><b>Customer's Bank Details: </b>{!pi.Customer_s_Bank_Details__c }</span><br/> 
+                                <span style="font-size:8pt;text-align:left;"><b>Nomination Agent Details: </b>{!pi.Nomination_Agent__c }</span><br/> 
+                            </span>
+                        </div>                        
+                    </td>
+                    <td class="label" style="border: 1px solid #000;padding: 5px; width:50%;font-size:11px;">
+                        <div style="position:relative;top:10px"> 
+                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                <tr style="position:relative;top:-10px">
+                                    <td style ="position: relative;display: unset;top: 26px;padding: 5px;">
+                                        <span class="header normalText font_weight" style="line-height:60%; font-size:16px;">
+                                            <span style="font-size:8pt;text-align:left;"><b>BL Instructions: </b>{!pi.BL_Instruction__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Any Particular Details Required in BL: </b>{!pi.BL_Instruction_Comments__c }</span><br/>
+                                            <span style="font-size:8pt;text-align:left;"><b>Contact Info For Logistic Purpose: </b>{!pi.Contact_Info_for_Logistic_Purpose__c }</span><br/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>	
+                </tr>
+            </table>
+        
+        <table class="table-container" style=" width: 100%;border-collapse: collapse;margin: 20px 0; margin-top:-0px;font-size: 11px;text-align:Center;">
+            <tr >
+                
+                <th style="border: 1px solid black;padding:0;">Sr No.</th>
+                
+                <th style="border: 1px solid black;padding:0;">Product Name</th>
+                
+                <th style="border: 1px solid black;">Qty</th>
+                
+                <th style="border: 1px solid black;"> Lot No </th>
+                
+                <th style="border: 1px solid black;">Packing</th>
+                
+                <th style="border: 1px solid black;">Box/Drum</th>
+                
+                <th style="border: 1px solid black;">Pallet Qty</th>
+                
+                <th style="border: 1px solid black;">Pallet No </th>
+                
+                <th style="border: 1px solid black;">Application </th>
+                
+            </tr>
+            
+            
+            <apex:variable value="{!1}" var="srno"/>
+            <apex:repeat value="{!piList}" var="q"> 
+                
+                <tr>
+                    
+                    <td style="border: 1px solid black;">{!srno} </td>
+                    
+                    <td style="border: 1px solid black;"> {!q.Line_Item_Description__c} </td>
+                    
+                    <td style="border: 1px solid black;"> {!q.Quantity__c} </td>
+                    
+                    <td style="width:160px;border: 1px solid black;"> {!q.Quality__c} </td>
+                    
+                    <td style="border: 1px solid black;"> {!q.Packing__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Box_Drum__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Pallet_Quantity__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Pallet_No__c} </td>
+                    
+                    <td style="border: 1px solid black;border-:"> {!q.Product__r.Application__c} </td>
+                    
+                </tr>
+                
+                <apex:variable value="{!srno+1}" var="srno"/>
+            </apex:repeat> 
+            
+                
+        </table>
+        </apex:outputPanel>
+        
+    </body>
+</apex:page>

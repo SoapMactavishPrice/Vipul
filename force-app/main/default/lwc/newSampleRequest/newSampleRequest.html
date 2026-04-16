@@ -1,0 +1,365 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-around_medium">
+            <template if:true={isPageLoad}>
+                <div class="slds-grid slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-combobox label="Select Sample Type" value={sampleType} options={sampleTypeOptions}
+                            onchange={handleSampleTypeChange} data-id="sampleType" style="width: 100%;">
+                        </lightning-combobox>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Show Sample Out Fields when Sample Out is selected -->
+            <template if:true={isSampleOutSelected}>
+                <div class="slds-grid slds-wrap slds-grid_align-space slds-p-top_medium">
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-combobox label="Selected Type" value={sampleType} options={sampleTypeOptions}
+                            onchange={handleSampleTypeChange} data-id="sampleType" placeholder="Selected Type"
+                            style="width: 100%;">
+                        </lightning-combobox>
+                    </div>
+                    <!-- <div class="slds-col slds-size_1-of-5">
+                        <lightning-combobox label="Samples Request Sent To" value={sampleOutSentTo}
+                            options={sampleOutSentToOptions} onchange={handleFieldChange} data-id="sampleOutSentTo"
+                            style="width: 100%;" required>
+                        </lightning-combobox>
+                    </div> -->
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-input label="Request Date" value={requestDate} type="date"
+                            onchange={handleFieldChange} data-id="requestDate" style="width: 100%;"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-input label="Received Date" value={receivedDate} type="date"
+                            onchange={handleFieldChange} data-id="receivedDate" style="width: 100%;"></lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-5">
+                        <!-- Record Picker for selecting a User -->
+                        <lightning-record-picker label="Person" value={personId} object-api-name="User"
+                            onchange={handlePersonChange} style="width: 100%;"
+                            placeholder="Search for a user..."></lightning-record-picker>
+                    </div>
+                </div>
+
+                <!-- Person, Company, and Country Pickers -->
+                <div class="slds-grid slds-wrap slds-grid_align-space slds-p-top_medium">
+
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="Company Name" value={accountId} object-api-name="Account"
+                            onchange={handleFieldChange} data-id="accountId" placeholder="Select Company"
+                            style="width: 100%;">
+                        </lightning-record-picker>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="Enquiry Name" value={enquiryId} object-api-name="Opportunity"
+                            onchange={handleFieldChange} data-id="enquiryId" placeholder="Select Enquiry"
+                            style="width: 100%;">
+                        </lightning-record-picker>
+                    </div>
+
+                    <!-- Country Record Picker -->
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="Country" value={countryId} object-api-name="Country__c"
+                            onchange={handleFieldChange} data-id="countryId" placeholder="Select Country"
+                            style="width: 100%;">
+                        </lightning-record-picker>
+                    </div>
+                    <div class="slds-col slds-size_1-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Delay Days</label>
+                            <div class="slds-form-element__control">
+                                <input class="slds-input" value={delayDays} style="width: 100%;" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details Table for Sample Out -->
+                <div class="slds-p-top_medium">
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr>
+                                <th class="slds-text-align_left">Product Name</th>
+                                <th class="slds-text-align_center">CI</th>
+                                <th class="slds-text-align_center">Quantity</th>
+                                <th class="slds-text-align_center">UOM</th>
+                                <th class="slds-text-align_center">Packets</th>
+                                <th class="slds-text-align_center">Quality</th>
+                                <!-- <th class="slds-text-align_center">Colour Index</th> -->
+                                <th class="slds-text-align_center">Application</th>
+                                <th class="slds-text-align_center">Sample Sent to Unit</th>
+                                <th class="slds-text-align_center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={products} for:item="product">
+                                <tr key={product.index}>
+                                    <!-- Product Lookup -->
+                                    <td style="width: 325px;margin-top: 15px">
+                                        <template if:true={product.prodId}>
+                                            <c-look-up-component object-api-name="Product2" icon-name="standard:product"
+                                                data-index={product.index} style="width: 300px;" data-label="prodId"
+                                                index={product.index} default-record-id={product.prodId}
+                                                return-fields="ProductCode" family={product.prodFamily}
+                                                sort-column="Name" display-fields=""
+                                                query-fields="['Name,ProductCode,CI_no__c']"
+                                                onrecordselection={lookupRecord}
+                                                onfocus={lookupRecord}></c-look-up-component>
+                                        </template>
+                                        <template if:false={product.prodId}>
+                                            <c-look-up-component object-api-name="Product2" icon-name="standard:product"
+                                                data-index={product.index} style="width: 300px;" data-label="prodId"
+                                                return-fields="ProductCode" family={product.prodFamily}
+                                                sort-column="Name" display-fields=""
+                                                query-fields="['Name,ProductCode,CI_no__c']"
+                                                onrecordselection={lookupRecord}
+                                                onfocus={lookupRecord}></c-look-up-component>
+                                        </template>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.ciNo} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="ciNo" style="margin-bottom: 20px;"
+                                            disabled="true">
+                                        </lightning-input>
+                                    </td>
+
+
+                                    <!-- Quantity -->
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.quantity} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="quantity"
+                                            style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-combobox name="unitOfMeasure" variant="label-hidden"
+                                            value={product.selectedUnitOfMeasure} options={unitOfMeasureOptions}
+                                            data-index={product.index} onchange={handleProductFieldChange}
+                                            data-label="unitOfMeasure">
+                                        </lightning-combobox>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.packet} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="packet" style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <!-- Quality -->
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.quality} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="quality"
+                                            style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <!-- Colour Index -->
+                                    <!-- <td class="slds-text-align_center">
+                                        <lightning-input value={product.colourIndex} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="colourIndex"
+                                            style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td> -->
+
+                                    <!-- Application -->
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.application} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="application"
+                                            style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-record-picker label="Select Unit" object-api-name="Unit_Master__c"
+                                            display-field="Name" value-field="Id" placeholder="Search Unit..."
+                                            variant="label-hidden" onchange={handleUnitChange}
+                                            data-index={product.index} style="width: 100%;">
+                                        </lightning-record-picker>
+                                    </td>
+
+
+                                    <!-- Add/Remove Product Buttons -->
+                                    <td class="slds-text-align_center">
+                                        <lightning-button-icon icon-name="utility:add" alternative-text="Add Product"
+                                            title="Add Product" onclick={addProduct} data-index={product.index}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon icon-name="utility:delete"
+                                            alternative-text="Remove Product" title="Remove Product"
+                                            onclick={removeProduct} data-index={product.index}
+                                            style="margin-left: 3px;">
+                                        </lightning-button-icon>
+                                    </td>
+                                </tr>
+                            </template>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Submit Button for Sample Out -->
+                <div class="slds-p-top_medium slds-text-align_center">
+                    <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                    <lightning-button label="Submit" variant="brand" onclick={handleSubmitSampleOut}
+                        style="margin-left: 6px;">
+                    </lightning-button>
+                </div>
+            </template>
+
+            <!-- Show Sample In Fields when Sample In is selected -->
+            <template if:true={isSampleInSelected}>
+                <div class="slds-grid slds-wrap slds-grid_align-space slds-p-top_medium">
+                    <div class="slds-col slds-size_1-of-6">
+                        <lightning-combobox label="Selected Type" value={sampleType} options={sampleTypeOptions}
+                            onchange={handleSampleTypeChange} data-id="sampleType" style="width: 70%;">
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6">
+                        <lightning-record-picker label="Company Name" value={accountId} object-api-name="Account"
+                            onchange={handleFieldChange} data-id="accountId" style="width: 70%;">
+                        </lightning-record-picker>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-6">
+                        <lightning-record-picker label="Enquiry Name" value={enquiryId} object-api-name="Opportunity"
+                            onchange={handleFieldChange} data-id="enquiryId" style="width: 70%;">
+                        </lightning-record-picker>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-6">
+                        <lightning-input label="Received Date" value={receivedDate} type="date"
+                            onchange={handleFieldChange} data-id="receivedDate" style="width: 70%;"></lightning-input>
+                    </div>
+                    <!-- <div class="slds-col slds-size_1-of-6">
+                        <lightning-record-picker label="Sample Sent To Unit" value={sampleOutSentTo}
+                            object-api-name="Unit_Master__c" onchange={handleFieldChange} data-id="sampleOutSentTo"
+                            style="width: 70%;">
+                        </lightning-record-picker>
+                    </div> -->
+                    <div class="slds-col slds-size_1-of-6">
+                        <!-- Record Picker for selecting a User -->
+                        <lightning-record-picker label="Person" value={personId} object-api-name="User"
+                            onchange={handlePersonChange} style="width: 70%;"
+                            placeholder="Search for a user..."></lightning-record-picker>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6">
+                        <lightning-record-picker label="Country" value={countryId} object-api-name="Country__c"
+                            onchange={handleFieldChange} data-id="countryId" style="width: 70%;">
+                        </lightning-record-picker>
+                    </div>
+                </div>
+
+                <!-- Product Details for Sample In -->
+                <div class="slds-p-top_medium">
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr>
+                                <th class="slds-text-align_left">Product Name</th>
+                                <th class="slds-text-align_center">CI</th>
+                                <th class="slds-text-align_center">S.In Ref No</th>
+                                <th class="slds-text-align_center">VOL Product Name</th>
+                                <th class="slds-text-align_center">Application</th>
+                                <th class="slds-text-align_center">Annual Qty of Business</th>
+                                <th class="slds-text-align_center">Sample Sent to Units</th>
+                                <th class="slds-text-align_center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={products} for:item="product">
+                                <tr key={product.index}>
+                                    <td>
+                                        <lightning-input value={product.productName} options={productOptions}
+                                            onchange={handleProductFieldChange} data-index={product.index}
+                                            data-label="productName" style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.ci} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="ci" style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.srefno} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="srefno" style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+                                    <td style="width: 325px;margin-top: 15px">
+                                        <template if:true={product.prodId}>
+                                            <c-look-up-component object-api-name="Product2" icon-name="standard:product"
+                                                data-index={product.index} style="width: 300px;" data-label="prodId"
+                                                index={product.index} default-record-id={product.prodId}
+                                                return-fields="ProductCode" family={product.prodFamily}
+                                                sort-column="Name" display-fields=""
+                                                query-fields="['Name,ProductCode,CI_no__c']"
+                                                onrecordselection={lookupRecord}
+                                                onfocus={lookupRecord}></c-look-up-component>
+                                        </template>
+                                        <template if:false={product.prodId}>
+                                            <c-look-up-component object-api-name="Product2" icon-name="standard:product"
+                                                data-index={product.index} style="width: 300px;" data-label="prodId"
+                                                return-fields="ProductCode" family={product.prodFamily}
+                                                sort-column="Name" display-fields=""
+                                                query-fields="['Name,ProductCode,CI_no__c']"
+                                                onrecordselection={lookupRecord}
+                                                onfocus={lookupRecord}></c-look-up-component>
+                                        </template>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.application} onchange={handleProductFieldChange}
+                                            data-index={product.index} data-label="application"
+                                            style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+                                    <td class="slds-text-align_center">
+                                        <lightning-input value={product.annualQtyOfBusiness}
+                                            onchange={handleProductFieldChange} data-index={product.index}
+                                            data-label="annualQtyOfBusiness" style="margin-bottom: 20px;">
+                                        </lightning-input>
+                                    </td>
+
+                                    <td class="slds-text-align_center">
+                                        <lightning-record-picker label="Select Unit" object-api-name="Unit_Master__c"
+                                            display-field="Name" value-field="Id" placeholder="Search Unit..."
+                                            variant="label-hidden" onchange={handleUnitChange}
+                                            data-index={product.index} style="width: 100%;">
+                                        </lightning-record-picker>
+                                    </td>
+
+                                    <!-- <td>
+                                        <lightning-input value={product.courierno} options={productOptions}
+                                            onchange={handleProductFieldChange} data-index={product.index}
+                                            data-label="courierno">
+                                        </lightning-input>
+                                    </td> -->
+                                    <td class="slds-text-align_center">
+                                        <lightning-button-icon icon-name="utility:add" alternative-text="Add Product"
+                                            title="Add Product" onclick={addProduct} data-index={product.index}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon icon-name="utility:delete"
+                                            alternative-text="Remove Product" title="Remove Product"
+                                            onclick={removeProduct} data-index={product.index}
+                                            style="margin-left: 3px;">
+                                        </lightning-button-icon>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Submit Button for Sample In -->
+                <div class="slds-p-top_medium slds-text-align_center">
+                    <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                    <lightning-button label="Submit" variant="brand" onclick={handleSubmitSampleIn}
+                        style="margin-left: 6px;">
+                    </lightning-button>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

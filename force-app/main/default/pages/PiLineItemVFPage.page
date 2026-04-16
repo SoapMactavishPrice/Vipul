@@ -1,0 +1,79 @@
+<apex:page controller="PILineItemController" sidebar="false" showHeader="false">
+    <html>
+        <apex:slds />
+        <style>
+            table {
+                border-collapse: collapse;
+                border-spacing: 0;
+                width: 100%;
+                border: 1px solid #ddd;
+            }
+            
+            th, td {
+                text-align: left;
+                padding: 8px;
+            }
+            
+            tr:nth-child(even) { background-color: #f2f2f2; }
+            
+            .dateFormat {
+                visibility: hidden;            
+            }
+        </style>
+        
+        <body class="slds-scope">
+            <apex:form >
+                <br/>
+                
+                <div class="slds-box" style="width: 95%; margin: auto;">                      
+                    <apex:pagemessages /> 
+                    <p class="slds-text-title_caps" style="text-align: center; font-size: 20px;">Proforma Invoice Line Item</p> 
+                    
+                    <br/> 
+                    <div id="HtmlDiv" class="table-responsive">
+                        <table class="slds-table slds-table_bordered slds-scrollable--x slds-table_col-bordered slds-table_resizable-cols" style="width: 100%;">  
+                            <tr> 
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Product Name</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Quantity</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Packing</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Packing Type</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Others Packing Type</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Box/Drum</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Pallet Quantity</th>
+                                <th style="background-color: #0176D3; color: white; white-space: auto;" class="slds-text-align_center">Pallet No</th>
+                            </tr>                        
+                            <apex:repeat value="{!piList}" var="pii">
+                                <tr>
+                                    <td class="slds-text-align_center"><apex:outputField style="white-space: auto;" styleClass="slds-input" value="{!pii.Product__r.Name}" /></td>
+                                    <td class="slds-text-align_center"><apex:inputField style="white-space: auto;" styleClass="slds-input" value="{!pii.Quantity__c}" /></td>
+                                    <td class="slds-text-align_center"><apex:inputField style="white-space: auto;" styleClass="slds-input" value="{!pii.Packing__c}" /></td>
+                                    <td class="slds-text-align_center">
+                                        <apex:inputField id="packingType" styleClass="slds-input" value="{!pii.Packing_Type__c}">
+                                            <apex:actionSupport event="onchange" action="{!null}" rerender="othersPackingTypePanel"/>
+                                        </apex:inputField>
+                                    </td>
+                                    <td class="slds-text-align_center">
+                                        <apex:outputPanel id="othersPackingTypePanel">
+                                            <apex:outputPanel rendered="{!pii.Packing_Type__c == 'Others'}">
+                                                <apex:inputField styleClass="slds-input" value="{!pii.Others_Packing_Type__c}" />
+                                            </apex:outputPanel>
+                                        </apex:outputPanel>
+                                    </td>
+                                    <td class="slds-text-align_center"><apex:outputField style="white-space: auto;" styleClass="slds-input" value="{!pii.Box_Drum__c}" /></td>
+                                    <td class="slds-text-align_center"><apex:inputField style="white-space: auto;" styleClass="slds-input" value="{!pii.Pallet_Quantity__c}" /></td>
+                                    <td class="slds-text-align_center"><apex:outputField style="white-space: auto;" styleClass="slds-input" value="{!pii.Pallet_No__c}" /></td>
+
+                                </tr>
+                            </apex:repeat>   
+                        </table>
+                    </div>
+                    
+                    <div align="center" draggable="false">
+                        <apex:commandButton value="Save" action="{!Save}" styleClass="slds-button slds-button_brand slds-button__icon_right slds-button--brand slds-m-top--medium" />
+                        <apex:commandButton value="Cancel" action="{!Cancel}" styleClass="slds-button slds-button_destructive slds-button__icon_right slds-button--brand slds-m-top--medium" />
+                    </div>
+                </div>
+            </apex:form>  
+        </body>
+    </html>
+</apex:page>

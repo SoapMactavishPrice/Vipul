@@ -1,0 +1,76 @@
+<template>
+    <lightning-card title="Product Interested Records" icon-name="standard:contact">
+
+        <!-- Display success message after email sent -->
+        <template if:true={emailSent}>
+            <div class="slds-text-color_success">
+                Email sent successfully!
+            </div>
+        </template>
+
+        <!-- Display error message -->
+        <template if:true={errorMessage}>
+            <div class="slds-text-color_error">
+                {errorMessage}
+            </div>
+        </template>
+
+        <!-- Input for "To" Email Address (Editable) -->
+        <lightning-input label="To Email Address" value={toEmail} onchange={handleToEmailChange}
+            class="slds-m-top_medium">
+        </lightning-input>
+
+        <!-- Editable Subject -->
+        <lightning-input label="Subject" value={subject} onchange={handleSubjectChange} class="slds-m-top_medium">
+        </lightning-input>
+
+        <!-- Body of the Email (Products Interested Table) -->
+        <div class="slds-m-top_medium">
+            <h3>Products Interested</h3>
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col">
+                            <div class="slds-truncate" title="Product Name">Product Name</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Product Code">Product Code</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Price">Price</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={products} for:item="product">
+                        <tr key={product.Id}>
+                            <td>
+                                <div class="slds-truncate" title={product.Vipul_Product_Name__c}>
+                                    {product.Vipul_Product_Name__c}</div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title={product.Product_Code__c}>{product.Product_Code__c}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title={product.Price__c}>{product.Price__c}</div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- File upload for attachment -->
+        <lightning-file-upload label="Attach Files" name="fileUploader" accept={acceptedFormats} record-id={recordId}
+            onuploadfinished={handleFileUploadFinished} multiple>
+        </lightning-file-upload>
+
+        <!-- Buttons for Send and Cancel -->
+        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel} class="slds-m-top_medium">
+        </lightning-button>
+
+        <lightning-button variant="brand" label="Send Email" onclick={handleSendEmail} class="slds-m-top_medium">
+        </lightning-button>
+    </lightning-card>
+</template>

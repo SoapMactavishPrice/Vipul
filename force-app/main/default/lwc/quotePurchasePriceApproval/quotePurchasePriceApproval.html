@@ -1,0 +1,58 @@
+<template>
+    <lightning-card>
+        <h4 style="text-align: center; font-size: 30px; padding-bottom: 10px;">Quote Purchase Price Entry</h4>
+        <template if:true={quotes}>
+            <template for:each={quotes} for:item="quote">
+                <div key={quote.id} class="slds-box slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small" style="font-weight: bold; padding-bottom: 6px;">{quote.name}</h3>
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="table-layout: fixed; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="width: 180px;">Product Name</th>
+                                <th style="width: 80px; text-align: center;">Quantity</th>
+                                <th style="width: 120px;">Quality</th>
+                                <th style="width: 150px;">Application</th>
+                                <th style="width: 120px;">List Price</th>
+                                <th style="width: 120px;">Unit Price</th>
+                                <th style="width: 150px;">Previous Purchase Price</th>
+                                <th style="width: 150px;">Purchase Price (INR)</th>
+                                <th style="width: 150px;">Status</th>
+                                <th style="width: 200px;">Reject Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={quote.lineItems} for:item="item">
+                                <tr key={item.id}>
+                                    <td>{item.productName}</td>
+                                    <td style="text-align: center;">{item.quantity}</td>
+                                    <td>{item.quality}</td>
+                                    <td>{item.application}</td>
+                                    <td>{item.listPrice}</td>
+                                    <td>{item.unitPrice}</td>
+                                    <td>{item.previousPurchasePrice}</td>
+                                    <td>
+                                        <lightning-input
+                                            type="number"
+                                            value={item.purchasePrice}
+                                            data-parent={quote.id}
+                                            data-id={item.id}
+                                            data-field="purchasePrice"
+                                            onchange={handleLineItemChanges}
+                                            variant="label-hidden">
+                                        </lightning-input>
+                                    </td>
+                                    <td>{item.purchasePriceStatus}</td>
+                                    <td>{item.rejectReason}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+            <div class="slds-m-top_medium slds-text-align_center">
+                <lightning-button label="Cancel" onclick={redirectToHome} variant="neutral"></lightning-button>
+                <lightning-button class="slds-m-left_small" label="Save Changes" onclick={saveChanges} variant="brand" disabled={isSaveDisabled}></lightning-button>
+            </div>
+        </template>
+    </lightning-card>
+</template>

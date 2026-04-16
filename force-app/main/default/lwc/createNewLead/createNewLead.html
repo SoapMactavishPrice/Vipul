@@ -1,0 +1,651 @@
+<template>
+    <lightning-card>
+        <div class="slds-text-align_center slds-p-around_medium" style="margin-top: -35px;">
+            <h3 class="slds-text-heading_medium slds-text-weight_bold">NEW LEAD FORM</h3>
+        </div>
+
+        <div class="slds-p-horizontal_medium">
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+                <!-- Enquiry Type (Lead/Opportunity) -->
+                <!-- <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Enquiry Type" value='Lead' options={enquiryTypeOptions}
+                        onchange={handleInputChange} data-id="enquiryType"></lightning-input>
+                </div> -->
+
+                <!-- Enquiry Mode (Territory) -->
+                <!-- <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Lead Type" value={territory} options={optionsTerritory}
+                        onchange={handleLeadInputChange} data-id="territory" disabled="true"></lightning-combobox>
+                </div> -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Lead Type" value={territory} options={optionsTerritory}
+                        onchange={handleLeadInputChange} data-id="territory" disabled={isLeadTypeDisabled}>
+                    </lightning-combobox>
+                </div>
+
+
+                <!-- If Enquiry Type is "Lead" -->
+
+                <!-- OwnerId -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Owner" value={filledByName} onchange={handleLeadInputChange}
+                        disabled></lightning-input>
+                </div>
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Salutation" value={salutation} options={optionssalutation}
+                        onchange={handleLeadInputChange} data-id="salutation"></lightning-combobox>
+                </div>
+
+
+                <!-- First Name -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="First Name" value={fname} onchange={handleLeadInputChange}
+                        data-id="fname"></lightning-input>
+                </div>
+
+            </div>
+
+
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+
+                <!-- Last Name -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Last Name" value={leadName} onchange={handleLeadInputChange}
+                        data-id="leadName" class={getInputClass} required></lightning-input>
+                    <template if:true={isLeadNameEmpty}>
+                        <div class="slds-text-color_error">This field is required!</div>
+                    </template>
+                </div>
+
+
+                <!-- Email -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Email" value={email} onchange={handleLeadInputChange} data-id="email"
+                        required class={getInputClass}></lightning-input>
+                    <!-- <template if:true={isemailEmpty}>
+                        <div class="slds-text-color_error">Please enter a valid email address!</div>
+                    </template> -->
+                    <template if:true={isemailInvalid}>
+                        <div class="slds-text-color_error">Please enter a valid email address!</div>
+                    </template>
+                </div>
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Mobile" value={phone} onchange={handleLeadInputChange} data-id="phone"
+                        required class={getInputClass}></lightning-input>
+                    <template if:true={ismobileEmpty}>
+                        <div class="slds-text-color_error">This field is required!</div>
+                    </template>
+                </div>
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Phone" value={phone1} onchange={handleLeadInputChange}
+                        data-id="phone1"></lightning-input>
+                    <!-- <template if:true={isphoneEmpty}>
+                        <div class="slds-text-color_error">This field is required!</div>
+                    </template> -->
+                </div>
+
+            </div>
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Designation" value={designation} options={optionsdesignation}
+                        onchange={handleLeadInputChange} data-id="designation"></lightning-combobox>
+                </div>
+
+
+                <!-- <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Department" value={department} options={optionsdepartment}
+                        onchange={handleLeadInputChange} data-id="department"></lightning-combobox>
+                </div> -->
+
+
+                <!-- Company -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Company" value={companyName} onchange={handleLeadInputChange}
+                        data-id="companyName" class={getInputClass} required></lightning-input>
+                    <template if:true={iscompanyNameEmpty}>
+                        <div class="slds-text-color_error">This field is required!</div>
+                    </template>
+                </div>
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Customer Type" value={custtype} options={optionscusttype}
+                        onchange={handleLeadInputChange} data-id="custtype"></lightning-combobox>
+                    <!-- <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" large-device-size="3"
+                        padding="">
+                        <div class="form-group">
+                            <lightning-combobox name="Customer_Type" label="Customer Type"
+                                placeholder="Select Customer Type" value={customer_type} options={customerTypeOptions}
+                                onchange={handleCustomerType}>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="slds-p-around_xx-small">
+                            <template for:each={selectedCustomerTypes} for:item="type">
+                                <lightning-pill key={type} name={type} label={type} onremove={handleRemoveCustomerType}>
+                                </lightning-pill>
+                            </template>
+                        </div>
+                    </lightning-layout-item> -->
+                </div>
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Inco Terms" value={rating} options={optionsincoTerms}
+                        onchange={handleLeadInputChange} data-id="rating" class={getInputClass}>
+                    </lightning-combobox>
+                    <!-- <template if:true={isratingEmpty}>
+                        <div class="slds-text-color_error">This field is required!</div>
+                    </template> -->
+                </div>
+
+
+
+
+
+            </div>
+
+            <!-- Third Row: Street, Pincode, City, Area -->
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+
+
+
+
+                <!-- LeadSource -->
+                <!-- LeadSource -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Lead Source" value={leadSource} options={enquiryModeOptions}
+                        onchange={handleLeadInputChange} data-id="leadSource">
+                    </lightning-combobox>
+                </div>
+
+                <template if:true={showExhibitionField}>
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-input label="Exhibition Name" value={exhibitionName} onchange={handleLeadInputChange}
+                            data-id="exhibitionName">
+                        </lightning-input>
+                    </div>
+                </template>
+
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Currency" value={leadcurrency} options={optionsleadcurrency}
+                        onchange={handleLeadInputChange} data-id="leadcurrency" filter={currencyfilter}
+                        required></lightning-combobox>
+                    <template if:true={iscurrencyEmpty}>
+                        <div class="slds-text-color_error">This field is required!</div>
+                    </template>
+                </div>
+
+
+                <!-- Street -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Street" value={street} onchange={handleLeadInputChange}
+                        data-id="street"></lightning-input>
+                </div>
+
+                <!-- Country -->
+                <template if:false={showExhibitionField}>
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId}
+                            if:true={countryId} options={countryOptions} object-api-name="Country__c"
+                            onchange={handleLeadInputChange} data-id="countryId" required
+                            class={getInputClass}></lightning-record-picker>
+
+                        <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId}
+                            if:false={countryId} options={countryOptions} object-api-name="Country__c"
+                            onchange={handleLeadInputChange} data-id="countryId" required
+                            class={getInputClass}></lightning-record-picker>
+
+                        <template if:true={iscountryEmpty}>
+                            <div class="slds-text-color_error">This field is required!</div>
+                        </template>
+
+                    </div>
+                </template>
+
+
+
+            </div>
+
+
+            <!-- Fourth Row: State, Country, Description -->
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+
+
+
+
+                <!-- Pincode -->
+                <template if:true={isTerritoryDomestic}>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5">
+                            <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId}
+                                if:true={countryId} options={countryOptions} object-api-name="Country__c"
+                                onchange={handleLeadInputChange} data-id="countryId" required
+                                class={getInputClass}></lightning-record-picker>
+
+                            <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId}
+                                if:false={countryId} options={countryOptions} object-api-name="Country__c"
+                                onchange={handleLeadInputChange} data-id="countryId" required
+                                class={getInputClass}></lightning-record-picker>
+
+                            <template if:true={iscountryEmpty}>
+                                <div class="slds-text-color_error">This field is required!</div>
+                            </template>
+
+                        </div>
+                    </template>
+
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="Pincode" value={pincode} onchange={handleLeadInputChange}
+                            object-api-name="Pin_Code__c" data-id="pincode"></lightning-record-picker>
+                    </div>
+
+
+                    <!-- Area -->
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="Area" value={areaId} onchange={handleLeadInputChange}
+                            if:true={areaId} object-api-name="Area__c" data-id="areaId"></lightning-record-picker>
+                        <lightning-record-picker label="Area" value={areaId} onchange={handleLeadInputChange}
+                            if:false={areaId} object-api-name="Area__c" data-id="areaId"></lightning-record-picker>
+                    </div>
+
+
+                    <!-- City -->
+                    <!-- City -->
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-record-picker label="City" value={cityId} onchange={handleLeadInputChange}
+                            if:true={cityId} object-api-name="City__c" data-id="cityId"></lightning-record-picker>
+                        <lightning-record-picker label="City" value={cityId} onchange={handleLeadInputChange}
+                            if:false={cityId} object-api-name="City__c" data-id="cityId" class={getInputClass}
+                            required></lightning-record-picker>
+
+                        <template if:true={isCityRequiredForDomestic}>
+                            <div class="slds-text-color_error">This field is required!</div>
+                        </template>
+                    </div>
+
+                    <!-- State -->
+                    <template if:false={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5">
+                            <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                if:true={stateId} object-api-name="State__c"
+                                data-id="stateId"></lightning-record-picker>
+                            <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                if:false={stateId} object-api-name="State__c" data-id="stateId" class={getInputClass}
+                                required></lightning-record-picker>
+
+                            <template if:true={isStateRequiredForDomestic}>
+                                <div class="slds-text-color_error">This field is required!</div>
+                            </template>
+                        </div>
+                    </template>
+
+                </template>
+
+            </div>
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+                <template if:true={isTerritoryDomestic}>
+
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5" style="margin-right: -39px;margin-left: 37px;">
+                            <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                if:true={stateId} object-api-name="State__c"
+                                data-id="stateId"></lightning-record-picker>
+                            <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                if:false={stateId} object-api-name="State__c" data-id="stateId" class={getInputClass}
+                                required></lightning-record-picker>
+
+                            <template if:true={isStateRequiredForDomestic}>
+                                <div class="slds-text-color_error">This field is required!</div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template if:false={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5"
+                            style="margin-left: -60px; margin-right: -34px;margin-top: -17px;">
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="3" padding="around-small">
+                                <div class="form-group">
+                                    <lightning-combobox name="Company_Business" label="Company Business"
+                                        placeholder="Company Business" value={company_business}
+                                        options={companyBusinessOptions}
+                                        onchange={handleCompanyBusiness}></lightning-combobox>
+                                </div>
+
+
+                                <div class="slds-p-around_xx-small">
+                                    <template for:each={allValues} for:item="val">
+                                        <lightning-pill key={val} name={val} label={val}
+                                            onremove={handleRemove}></lightning-pill>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                        </div>
+                    </template>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5" style="margin-right: -131px;margin-left: 126px;">
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="3" padding="around-small"
+                                style="margin-top: -18px;margin-left: -17px;margin-right: 12px;">
+                                <div class="form-group">
+                                    <lightning-combobox name="Company_Business" label="Company Business"
+                                        placeholder="Company Business" value={company_business}
+                                        options={companyBusinessOptions} onchange={handleCompanyBusiness}
+                                        style="margin-top: -18px;margin-left: -17px;margin-right: 12px;"></lightning-combobox>
+                                </div>
+
+
+                                <div class="slds-p-around_xx-small">
+                                    <template for:each={allValues} for:item="val">
+                                        <lightning-pill key={val} name={val} label={val}
+                                            onremove={handleRemove}></lightning-pill>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                        </div>
+                    </template>
+
+                    <template if:false={showExhibitionField}>
+                        <div class="slds-col slds-size_3-of-5">
+                            <lightning-textarea label="Description" value={description} onchange={handleLeadInputChange}
+                                data-id="description"
+                                style="margin-left:-90px;margin-right:-65px;"></lightning-textarea>
+                        </div>
+                    </template>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_3-of-5">
+                            <lightning-textarea label="Description" value={description} onchange={handleLeadInputChange}
+                                data-id="description" style="margin-left:192px;margin-right:33px;"></lightning-textarea>
+                        </div>
+                    </template>
+
+                </template>
+
+            </div>
+
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+
+                <!-- Description -->
+                <template if:false={isTerritoryDomestic}>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5"
+                            style="margin-left: 32px;margin-right: -32px;margin-top: -16px">
+                            <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId}
+                                if:true={countryId} options={countryOptions} object-api-name="Country__c"
+                                onchange={handleLeadInputChange} data-id="countryId" required class={getInputClass}
+                                style="margin-left: 27px;margin-right: -27px;"></lightning-record-picker>
+
+                            <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId}
+                                if:false={countryId} options={countryOptions} object-api-name="Country__c"
+                                onchange={handleLeadInputChange} data-id="countryId" required class={getInputClass}
+                                style="margin-left: 27px;margin-right: -27px;"></lightning-record-picker>
+
+                            <template if:true={iscountryEmpty}>
+                                <div class="slds-text-color_error">This field is required!</div>
+                            </template>
+
+                        </div>
+                    </template>
+
+                    <template if:false={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5" style="margin-right: -8px;margin-left: 5px">
+                            <div style="margin-right: 31px;margin-left: -33px;margin-top: -16px">
+                                <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                    if:true={stateId} object-api-name="State__c" data-id="stateId"
+                                    style="margin-left: -32px;margin-right: 28px;"></lightning-record-picker>
+                                <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                    if:false={stateId} object-api-name="State__c" data-id="stateId"
+                                    style="margin-left: -32px;margin-right: 28px;"></lightning-record-picker>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5" style="margin-left: 105px;margin-right: -105px;">
+                            <div style="margin-right: 7px;margin-left: -12px;margin-top: -16px">
+                                <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                    if:true={stateId} object-api-name="State__c" data-id="stateId" style="margin-left: 105px;
+                                    margin-right: -105px;"></lightning-record-picker>
+                                <lightning-record-picker label="State" value={stateId} onchange={handleLeadInputChange}
+                                    if:false={stateId} object-api-name="State__c" data-id="stateId"
+                                    style="margin-left: 105px;margin-right: -105px;"></lightning-record-picker>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template if:false={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5"
+                            style="margin-left: -60px; margin-right: -34px;margin-top: -17px;">
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="3" padding="around-small">
+                                <div class="form-group" style="margin-left: 16px;margin-right: -18px;">
+                                    <lightning-combobox name="Company_Business" label="Company Business"
+                                        placeholder="Company Business" value={company_business}
+                                        options={companyBusinessOptions} onchange={handleCompanyBusiness}
+                                        style="margin-left: -39px;margin-right: 36px;"></lightning-combobox>
+                                </div>
+                                <div class="slds-p-around_xx-small" style="margin-left: -39px;margin-right: 36px;">
+                                    <template for:each={allValues} for:item="val">
+                                        <lightning-pill key={val} name={val} label={val}
+                                            onremove={handleRemove}></lightning-pill>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                        </div>
+                    </template>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_1-of-5"
+                            style="margin-left: -45px; margin-right: -10px;margin-top: -17px;">
+                            <lightning-layout-item size="12" small-device-size="12" medium-device-size="6"
+                                large-device-size="3" padding="around-small"
+                                style="margin-left: 217px;margin-right: -213px;">
+                                <div class="form-group" style="margin-left: -13px;margin-right: 9px;">
+                                    <lightning-combobox name="Company_Business" label="Company Business"
+                                        placeholder="Company Business" value={company_business}
+                                        options={companyBusinessOptions} onchange={handleCompanyBusiness}
+                                        style="margin-left: 217px;margin-right: -213px;"></lightning-combobox>
+                                </div>
+                                <!-- Added matching margins for pills container -->
+                                <div class="slds-p-around_xx-small" style="margin-left: 217px;margin-right: -213px;">
+                                    <template for:each={allValues} for:item="val">
+                                        <lightning-pill key={val} name={val} label={val}
+                                            onremove={handleRemove}></lightning-pill>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                        </div>
+                    </template>
+
+                    <template if:false={showExhibitionField}>
+                        <div class="slds-col slds-size_2-of-5">
+                            <lightning-textarea label="Description" value={description} onchange={handleLeadInputChange}
+                                data-id="description"
+                                style="margin-left:-52px;margin-right:-31px;"></lightning-textarea>
+                        </div>
+                    </template>
+
+                    <template if:true={showExhibitionField}>
+                        <div class="slds-col slds-size_2-of-5">
+                            <lightning-textarea label="Description" value={description} onchange={handleLeadInputChange}
+                                data-id="description" style="margin-left:276px;margin-right:29px;"></lightning-textarea>
+                        </div>
+                    </template>
+                </template>
+
+
+            </div>
+            </br>
+            </br>
+
+
+
+
+
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <!-- Table Header -->
+                <thead>
+                    <tr>
+                        <!-- <th class="slds-text-align_left">Product Family</th> -->
+                        <th class="slds-text-align_left">New Product ?</th>
+                        <th class="slds-text-align_left">Product Name</th>
+                        <th class="slds-text-align_center">CI</th>
+                        <th class="slds-text-align_center">Quantity</th>
+                        <th class="slds-text-align_center">Quality</th>
+                        <th class="slds-text-align_center">Packaging</th>
+                        <th class="slds-text-align_center">Price</th>
+                        <th class="slds-text-align_center">Actions</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody>
+                    <template for:each={addAnswer} for:item="answer">
+                        <tr key={answer.index}>
+
+                            <td class="slds-text-align_center" style="width: 80px;">
+                                <lightning-input type="checkbox" data-label="New_Product__c" data-index={answer.index}
+                                    checked={answer.New_Product__c} onchange={handleCheckboxChange}>
+                                </lightning-input>
+                            </td>
+
+
+                            <!-- Product Name Field: Lookup or Text -->
+                            <td style="width: 300px;">
+                                <template if:true={answer.New_Product__c}>
+                                    <lightning-input variant="label-hidden" placeholder="Enter New Product Name"
+                                        value={answer.New_Product_Name__c} data-label="New_Product_Name__c"
+                                        data-index={answer.index} onchange={handleTextInputChange} style="width: 100%;"
+                                        filter={currencyfilter}>
+                                    </lightning-input>
+                                </template>
+
+                                <template if:false={answer.New_Product__c}>
+                                    <template if:true={answer}>
+                                        <c-look-up-component object-api-name="Product2" icon-name="standard:product"
+                                            data-index={answer.index} style="width: 100%;" data-label="prodId"
+                                            index={answer.index} default-record-id={answer.prodId}
+                                            return-fields="ProductCode" family={answer.prodFamily} sort-column="Name"
+                                            display-fields="" query-fields="['Name,ProductCode','CI_no__c']"
+                                            onrecordselection={lookupRecord} onfocus={lookupRecord}
+                                            filter={currencyfilter}>
+                                        </c-look-up-component>
+                                    </template>
+                                </template>
+                            </td>
+
+
+                            <!-- <td class="slds-text-align_right" style="width: 220px">
+                                <lightning-input variant="label-hidden" value={answer.ciNo} data-label="CI"
+                                    data-index={answer.index} onchange={handleScoreChange}
+                                    disabled="true"></lightning-input>
+                            </td> -->
+
+                            <td class="slds-text-align_right" style="width: 150px">
+                                <template if:true={answer.New_Product__c}>
+                                    <lightning-input type="text" variant="label-hidden"
+                                        value={answer.New_Product_CI_No__c} onchange={handleCITextInputChange}
+                                        data-index={answer.index} class="slds-p-around_medium"
+                                        style="margin-right: -12px;">
+                                    </lightning-input>
+                                </template>
+                                <template if:false={answer.New_Product__c}>
+                                    <lightning-input variant="label-hidden" data-label="ciNo" value={answer.ciNo}
+                                        disabled data-index={answer.index} onchange={handleScoreChange}
+                                        style="text-align: center;">
+                                    </lightning-input>
+                                </template>
+                            </td>
+
+
+
+                            <!-- Quantity -->
+                            <td class="slds-text-align_right" style="width: 150px">
+                                <lightning-input variant="label-hidden" data-label="volume" data-index={answer.index}
+                                    onchange={handleScoreChange}></lightning-input>
+                            </td>
+
+                            <!-- Quality -->
+                            <td class="slds-text-align_center" style="width: 180px">
+                                <lightning-input variant="label-hidden" data-label="quality" data-index={answer.index}
+                                    onchange={handleScoreChange}></lightning-input>
+                            </td>
+
+                            <!-- Packaging -->
+                            <td class="slds-text-align_center" style="width: 150px">
+                                <lightning-combobox value={answer.packaging} label="Packaging" variant="label-hidden"
+                                    options={optionsPackaging} data-label="packaging" data-index={answer.index}
+                                    onchange={handlePackagingChange}></lightning-combobox>
+                            </td>
+
+                            <!-- Price -->
+                            <td class="slds-text-align_right" style="width: 180px">
+                                <lightning-input variant="label-hidden" data-label="price" data-index={answer.index}
+                                    onchange={handleScoreChange}></lightning-input>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="slds-text-align_center" style="width: 0;">
+                                <div style="display: flex; justify-content: space-around;">
+                                    <lightning-button-icon icon-name="utility:add" alternative-text="Add Product"
+                                        title="Add Product" onclick={addAnswerItem} data-index={answer.index}>
+                                    </lightning-button-icon>
+                                    <lightning-button-icon icon-name="utility:delete" alternative-text="Remove Product"
+                                        title="Remove Product" onclick={removeAnswer} data-index={answer.index}
+                                        class="slds-m-left_xx-small">
+                                    </lightning-button-icon>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+
+            <!-- Description and Submit Button -->
+            <div class="slds-grid slds-wrap slds-m-top_medium">
+                <!-- <template if:true={enquiryTypeIsEnquiry}>
+                    <div class="slds-col slds-size_1-of-1 slds-text-align_center">
+                        <lightning-button label="Submit" onclick={createOpportunity}></lightning-button>
+                    </div>
+                </template> -->
+
+                <div class="slds-col slds-size_1-of-1 slds-text-align_center">
+                    <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                    <lightning-button label="Submit" onclick={createLead} style="margin-left: 10px;"></lightning-button>
+
+                </div>
+
+            </div>
+        </div>
+    </lightning-card>
+
+
+
+
+</template>

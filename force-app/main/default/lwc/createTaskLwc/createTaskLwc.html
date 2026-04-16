@@ -1,0 +1,129 @@
+<template>
+    <div class="slds-grid slds-gutters slds-wrap slds-theme_shade slds-p-around_xx-small">
+
+        <!-- Add Task Section (34%) -->
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3"
+            style="flex-basis: 34%; max-width: 34%;height: 100px;">
+            <div class="slds-box slds-theme_default slds-m-bottom_xx-small" style="padding-bottom: 5px;
+    padding-block-start: 8px;">
+                <h3 class="slds-text-title slds-text-align_center">Add New Task</h3>
+            </div>
+
+            <!-- Add Task Form -->
+            <div class="slds-box slds-theme_default" style="margin-block-start: 16px;">
+                <lightning-input type="text" label="Task Name" placeholder="Enter Task Name (max 80)"
+                    value={newTodoTitle} onchange={handleTitleChange}>
+                </lightning-input>
+
+                <lightning-combobox name="assignedTo" label="Assigned To" value={selectedOwnerId}
+                    placeholder="Select User" options={userOptions} onchange={handleOwnerChange}>
+                </lightning-combobox>
+
+                <lightning-combobox name="priority" label="Priority" value={selectedPriority}
+                    placeholder="Select Priority" options={priorityOptions} onchange={handlePriorityChange}>
+                </lightning-combobox>
+
+                <lightning-input type="date" label="Due Date" value={selectedDateTime} onchange={handleDateChange}>
+                </lightning-input>
+
+                <lightning-combobox name="relatedObject" label="Related To" value={selectedObject}
+                    placeholder="Select Related Object" options={objectOptions} onchange={handleObjectChange}>
+                </lightning-combobox>
+
+                <template if:true={showSearchBox}>
+                    <template if:true={isLead}>
+                        <lightning-record-picker type="text" label="Search Lead" placeholder="Search for related Lead"
+                            value={searchTerm} onchange={handleSearchTermChange} object-api-name="Lead">
+                        </lightning-record-picker>
+                    </template>
+                    <template if:true={isAccount}>
+                        <lightning-record-picker type="text" label="Search Account"
+                            placeholder="Search for related Account" value={searchTerm}
+                            onchange={handleSearchTermChange} object-api-name="Account">
+                        </lightning-record-picker>
+                    </template>
+                    <template if:true={isContact}>
+                        <lightning-record-picker type="text" label="Search Contact"
+                            placeholder="Search for related Contact" value={searchTerm}
+                            onchange={handleSearchTermChange} object-api-name="Contact">
+                        </lightning-record-picker>
+                    </template>
+                </template>
+
+                <lightning-button label="Add Task" variant="brand" class="slds-m-top_medium slds-align_absolute-center"
+                    onclick={addTodo}>
+                </lightning-button>
+            </div>
+        </div>
+
+
+        <!-- Open Tasks Due Today (22%) -->
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4" style="flex-basis: 22%; max-width: 22%;">
+            <div class="slds-box slds-theme_default slds-m-bottom_medium" style="padding-bottom: 5px;
+    padding-block-start: 8px;">
+                <h3 class="slds-text-title slds-text-align_center">Open Due Today</h3>
+            </div>
+            <template for:each={todos.openDueToday} for:item="task">
+                <div key={task.Id}>
+                    <div class="slds-card slds-card_boundary slds-m-bottom_x-small" style="padding: 10px;">
+                        <label class="slds-text-title slds-text-body_medium"><b>{task.Subject}</b></label>
+                        <lightning-button-icon icon-name="utility:close" alternative-text="Mark as Done"
+                            onclick={markAsDone} data-id={task.Id} class="slds-is-absolute"
+                            style="top: 0.5rem; right: 0.5rem;" size="small">
+                        </lightning-button-icon>
+                        <div class="slds-card__body">
+                            <b>Priority:</b> {task.Priority} <br />
+                            <b>Due On:</b> {task.ActivityDate}
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Open Overdue Tasks (22%) -->
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4" style="flex-basis: 22%; max-width: 22%;">
+            <div class="slds-box slds-theme_default slds-m-bottom_medium" style="padding-bottom: 5px;
+    padding-block-start: 8px;">
+                <h3 class="slds-text-title slds-text-align_center">Open Overdue</h3>
+            </div>
+            <template for:each={todos.openOverdue} for:item="task">
+                <div key={task.Id}>
+                    <div class="slds-card slds-card_boundary slds-m-bottom_x-small" style="padding: 10px;">
+                        <label class="slds-text-title slds-text-body_medium"><b>{task.Subject}</b></label>
+                        <lightning-button-icon icon-name="utility:close" alternative-text="Mark as Done"
+                            onclick={markAsDone} data-id={task.Id} class="slds-is-absolute"
+                            style="top: 0.5rem; right: 0.5rem;" size="small">
+                        </lightning-button-icon>
+                        <div class="slds-card__body">
+                            <b>Priority:</b> {task.Priority} <br />
+                            <b>Due On:</b> {task.ActivityDate}
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Completed Tasks (22%) -->
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4" style="flex-basis: 22%; max-width: 22%;">
+            <div class="slds-box slds-theme_default slds-m-bottom_medium" style="padding-bottom: 5px;
+    padding-block-start: 8px;">
+                <h3 class="slds-text-title slds-text-align_center">Completed</h3>
+            </div>
+            <template for:each={todos.completedTasks} for:item="task">
+                <div key={task.Id}>
+                    <div class="slds-card slds-card_boundary slds-m-bottom_x-small" style="padding: 10px;">
+                        <label class="slds-text-title slds-text-body_medium"><b>{task.Subject}</b></label>
+                        <lightning-button-icon icon-name="utility:close" alternative-text="Already Completed"
+                            class="slds-is-absolute" style="top: 0.5rem; right: 0.5rem;" size="small" disabled>
+                        </lightning-button-icon>
+                        <div class="slds-card__body">
+                            <b>Priority:</b> {task.Priority} <br />
+                            <b>Completed On:</b> {task.ActivityDate}
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+    </div>
+</template>

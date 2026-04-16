@@ -1,0 +1,63 @@
+<apex:page standardController="Opportunity" extensions="CompanyEmailController" applyHtmlTag="false" showHeader="false" docType="html-5.0">
+    
+    
+    <head>
+        <apex:slds />
+    </head>
+
+    <body style="width: 80%; margin: 0 auto" class="slds-scope">
+        <apex:pagemessages />
+        <apex:outputText rendered="{!isValid}">
+            
+            <!-- SEND EMAIL AND CANCEL -->
+            <div style="width:80%; padding-bottom: 2%; margin: 0 auto">
+                <div style="padding: 5px">
+                    <apex:form id="myForm">
+                        <apex:inputHidden value="{!formSubmitted}" id="formSubmitted" />
+
+                        <!-- Email Input Fields -->
+                        <div style="padding: 5px">
+                            <apex:inputText html-placeholder="Email ID" value="{!emailId}" styleClass="slds-input" />
+                            <apex:inputText html-placeholder="CC Addresses (Comma Separated)" value="{!CC_Addresses}" styleClass="slds-input" style="margin-top: 5px" />
+                            <apex:inputText html-placeholder="Subject" value="{!subject}" styleClass="slds-input" style="margin-top: 5px; margin-bottom: 10px" />
+                            <apex:inputTextarea richText="true" value="{!body}" styleClass="slds-input" />
+                        </div>
+
+                        <!-- Buttons -->
+                        <div style="margin: 10px 5px; text-align: right">
+                            <apex:commandButton id="sendButton" action="{!sendEmail}" value="Send Email" styleClass="slds-button slds-button_brand" onclick="return disableButtons();" />
+                            <apex:commandButton id="cancelButton" action="{!cancel}" value="Cancel" styleClass="slds-button slds-button_destructive" onclick="return disableButtons();" />
+                        </div>
+
+                        <!-- Loading Status -->
+                        <apex:actionStatus startText="Processing..." id="loadingStatus">
+                            <script>
+                                document.getElementById('sendButton').disabled = true;
+                                document.getElementById('cancelButton').disabled = true;
+                            </script>
+                            
+                        </apex:actionStatus>
+                        
+                    </apex:form>
+
+                    <!-- JavaScript for Button Disabling -->
+                    <apex:includeScript value="/soap/ajax/29.0/connection.js" />
+                    <script>
+                        function disableButtons() {
+                            var formSubmitted = document.getElementById('{!$Component.myForm.formSubmitted}').value;
+                            if (formSubmitted === 'true') {
+                                return false;
+                            }
+                            document.getElementById('{!$Component.myForm.formSubmitted}').value = 'true';
+
+                            document.getElementById('sendButton').disabled = true;
+                            document.getElementById('cancelButton').disabled = true;
+
+                            return true;
+                        }
+                    </script>
+                </div>
+            </div>
+        </apex:outputText>
+    </body>
+</apex:page>

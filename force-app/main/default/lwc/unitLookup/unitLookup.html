@@ -1,0 +1,95 @@
+<template>
+    <div class="slds-form-element">
+        <div class="slds-form-element__control">
+            <div class="slds-combobox_container">
+                <div class={comboboxClass} aria-expanded={showDropdown} aria-haspopup="listbox" role="combobox">
+
+                    <!-- ================= SELECTED VALUE ================= -->
+                    <template if:true={selectedUnit}>
+                        <div class="slds-combobox__form-element
+                                    slds-input-has-icon
+                                    slds-input-has-icon_left-right" role="none">
+
+                            <!-- LEFT ICON -->
+                            <span class="slds-icon_container
+                                         slds-icon-standard-location
+                                         slds-combobox__input-entity-icon">
+                                <lightning-icon icon-name="standard:location" size="small">
+                                </lightning-icon>
+                            </span>
+
+                            <!-- VALUE -->
+                            <input type="text" class="slds-input
+                                          slds-combobox__input
+                                          slds-combobox__input-value" value={selectedUnit.Name} readonly />
+
+                            <!-- REMOVE -->
+                            <button class="slds-button
+                                           slds-button_icon
+                                           slds-input__icon
+                                           slds-input__icon_right" onclick={handleRemove} title="Remove">
+                                <lightning-icon icon-name="utility:close" size="xx-small">
+                                </lightning-icon>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- ================= SEARCH INPUT ================= -->
+                    <template if:false={selectedUnit}>
+                        <div class="slds-combobox__form-element
+                                    slds-input-has-icon
+                                    slds-input-has-icon_right" role="none">
+
+                            <input type="text" class="slds-input slds-combobox__input" placeholder={placeholder}
+                                value={searchKey} onfocus={handleFocus} oninput={handleSearch} />
+
+                            <span class="slds-icon_container
+                                         slds-icon-utility-search
+                                         slds-input__icon
+                                         slds-input__icon_right">
+                                <lightning-icon icon-name="utility:search" size="xx-small">
+                                </lightning-icon>
+                            </span>
+                        </div>
+
+                        <!-- ================= DROPDOWN ================= -->
+                        <template if:true={showDropdown}>
+                            <div class="slds-dropdown
+                                        slds-dropdown_fluid
+                                        slds-dropdown_length-with-icon-7" role="listbox">
+
+                                <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+
+                                    <template for:each={results} for:item="unit">
+                                        <li key={unit.Id} class="slds-listbox__item" role="presentation"
+                                            onclick={handleSelect} data-id={unit.Id} data-name={unit.Name}>
+
+                                            <div class="slds-media
+                                                        slds-listbox__option
+                                                        slds-listbox__option_entity" role="option">
+
+                                                <span class="slds-media__figure
+                                                             slds-listbox__option-icon">
+                                                    <lightning-icon icon-name="standard:location" size="small">
+                                                    </lightning-icon>
+                                                </span>
+
+                                                <span class="slds-media__body">
+                                                    <span class="slds-listbox__option-text">
+                                                        {unit.Name}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </template>
+
+                                </ul>
+                            </div>
+                        </template>
+                    </template>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

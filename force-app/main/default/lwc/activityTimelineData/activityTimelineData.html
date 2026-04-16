@@ -1,0 +1,18 @@
+<template>
+    <lightning-card title="Activity Timeline" icon-name="standard:task">
+        <template if:true={activities}>
+            <lightning-accordion onsectiontoggle={handleAccordionToggle} open-sections={openSections}>
+                <template for:each={activities} for:item="activity">
+                    <lightning-accordion-section key={activity.Id} label={activity.Subject} value={activity.Id}>
+                        <p><strong>Priority:</strong> {activity.Priority}</p>
+                        <p><strong>Status:</strong> {activity.Status}</p>
+                        <p><strong>Due Date:</strong> {activity.ActivityDate}</p>
+                    </lightning-accordion-section>
+                </template>
+            </lightning-accordion>
+        </template>
+        <template if:true={error}>
+            <p>Error fetching activity data: {error.message}</p>
+        </template>
+    </lightning-card>
+</template>

@@ -1,0 +1,18 @@
+/* marketingForm.css */
+.slds-modal__container {
+    width: 60%;
+    max-width: 900px;
+}
+
+.slds-modal__content {
+    padding: 2rem;
+}
+
+.slds-modal__header {
+    background-color: #f4f6f9;
+}
+
+.scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+}

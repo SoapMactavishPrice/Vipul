@@ -1,0 +1,67 @@
+<template>
+    <lightning-card>
+        <div class="slds-text-align_center slds-p-around_medium">
+            <h2 class="slds-text-heading_medium">INTERNATIONAL MARKETING TEAM</h2>
+        </div>
+
+        <div class="slds-p-horizontal_medium">
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+                <!-- Filled By (Current User Name) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Filled By" value={filledByName} disabled></lightning-input>
+                </div>
+
+                <!-- Opportunity Name -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Opportunity Name" value={opportunityName} onchange={handleInputChange}
+                        data-id="opportunityName"></lightning-input>
+                </div>
+
+                <!-- Enquiry Mode (LeadSource) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Enquiry Mode" value={enquiryMode} options={enquiryModeOptions}
+                        onchange={handleInputChange} data-id="enquiryMode"></lightning-combobox>
+                </div>
+
+                <!-- Enquiry Type (Lead/Opportunity) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Enquiry Type" value={enquiryType} options={enquiryTypeOptions}
+                        onchange={handleInputChange} data-id="enquiryType"></lightning-combobox>
+                </div>
+            </div>
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+                <!-- Customer Type (Old/New) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Customer Type" value={customerType} options={customerTypeOptions}
+                        onchange={handleInputChange} data-id="customerType"></lightning-combobox>
+                </div>
+
+                <!-- Client Name (Account Lookup) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Client Name" value={accountId} options={accountOptions}
+                        onchange={handleInputChange} data-id="accountId"></lightning-combobox>
+                </div>
+
+                <!-- Who will attend (User Lookup) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Who will attend" value={whoWillAttend} options={userOptions}
+                        onchange={handleInputChange} data-id="whoWillAttend"></lightning-combobox>
+                </div>
+
+                <!-- Country -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Country" value={countryId} options={countryOptions}
+                        onchange={handleInputChange} data-id="countryId"></lightning-combobox>
+                </div>
+            </div>
+
+            <!-- Description and Submit Button -->
+            <div class="slds-grid slds-wrap slds-m-top_medium">
+                <div class="slds-col slds-size_1-of-1 slds-text-align_right">
+                    <lightning-button label="Submit" onclick={createOpportunity}></lightning-button>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>

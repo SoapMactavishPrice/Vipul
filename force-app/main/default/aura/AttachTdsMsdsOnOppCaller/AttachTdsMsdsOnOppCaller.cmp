@@ -1,0 +1,34 @@
+<aura:component implements="lightning:isUrlAddressable,force:hasRecordId,force:hasSObjectName">
+    <!-- Attribute to hold the recordId -->
+    <aura:attribute name="refRecordId" type="String" />
+    <aura:attribute name="sObjectName" type="String" />
+    
+    <!-- Attribute to hold the pageReference -->
+    <aura:attribute name="pageReference" type="Object" />
+
+    <!-- Handler for initialization -->
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+    <!-- Handler to reinitialize on change of pageReference -->
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+
+    <!-- Invoke child component -->
+    <c:attachTdsMsdsOnOpp rId="{!v.refRecordId}" srId="{!v.sObjectName}" />
+</aura:component>
+
+
+<!-- <aura:component implements="lightning:isUrlAddressable,force:hasRecordId,force:hasSObjectName">
+ 
+    <aura:attribute name="refRecordId" type="String" />
+ 
+    <aura:attribute name="sObjectName" type="String" />
+ 
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+ 
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+ 
+    <aura:attribute name="pageReference" type="Object"/>
+ 
+    <c:attachTdsMsdsOnOpp rId="{!v.refRecordId}" srId="{!v.sObjectName}" />
+ 
+</aura:component> -->

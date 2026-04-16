@@ -1,0 +1,7 @@
+.lightning-quick-action-panel {
+    min-height: 258px !important;
+}
+
+.hide-label lightning-record-picker label {
+    display: none;
+}

@@ -1,0 +1,435 @@
+<template>
+    <lightning-card>
+        <div class="slds-text-align_center slds-p-around_medium" style="margin-top: -35px;">
+            <h3 class="slds-text-heading_medium slds-text-weight_bold">NEW ENQUIRY FORM</h3>
+        </div>
+
+        <div class="slds-p-horizontal_medium">
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Enquiry Type" value={enquiryType1} options={optionsenquirytype}
+                        onchange={handleInputChange} data-id="enquiryType1" disabled={isLeadTypeDisabled}>
+                    </lightning-combobox>
+                </div>
+
+
+                <!-- Filled By (Current User Name) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Filled By" value={filledByName} disabled></lightning-input>
+                </div>
+
+                <!-- Opportunity Name -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-input label="Enquiry Name" value={opportunityName} onchange={handleInputChange}
+                        data-id="opportunityName" required></lightning-input>
+                </div>
+
+                <!-- Enquiry Mode (LeadSource) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Enquiry Mode" value={enquiryMode} options={enquiryModeOptions}
+                        onchange={handleInputChange} data-id="enquiryMode"></lightning-combobox>
+                </div>
+
+            </div>
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+                <!-- Customer Type (Old/New) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Customer Type" value={customerType} options={customerTypeOptions}
+                        onchange={handleInputChange} data-id="customerType"></lightning-combobox>
+                </div>
+
+                <!-- Client Name (Account Lookup) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-record-picker label="Client Name" placeholder="Search Accounts..." value={accountId}
+                        options={accountOptions} object-api-name="Account" onchange={handleInputChange}
+                        data-id="accountId" required></lightning-record-picker>
+                </div>
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Currency" value={accountCurrency} options={optionsleadcurrency}
+                        onchange={handleInputChange} data-id="accountCurrency"
+                        filter={currencyfilter}></lightning-combobox>
+                </div>
+
+
+                <div class="slds-col slds-size_1-of-5">
+                    <div>
+                        <lightning-input label="Close Date" type="date" value={closeDate} onchange={handleInputChange}
+                            data-id="closeDate">
+                        </lightning-input>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <div class="slds-grid slds-wrap slds-grid_align-space">
+
+                <!-- Customer Type (Old/New) -->
+                <div class="slds-col slds-size_1-of-5">
+
+
+                    <lightning-combobox label="Inco Terms" value={incoTerms} options={optionsincoTerms}
+                        onchange={handleInputChange} data-id="incoTerms">
+                    </lightning-combobox>
+
+                </div>
+
+
+                <!-- Client Name (Account Lookup) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <div>
+                        <lightning-combobox label="Stage" value={stage} options={optionsstage}
+                            onchange={handleInputChange} data-id="stage" disabled="true">
+                        </lightning-combobox>
+                    </div>
+                </div>
+
+
+                <!-- Who will attend (User Lookup) -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox label="Who will attend" value={whoWillAttend} options={userOptions}
+                        onchange={handleInputChange} data-id="whoWillAttend"></lightning-combobox>
+                </div>
+
+                <!-- Country -->
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-record-picker label="Country" placeholder="Search Country..." value={countryId1}
+                        options={countryOptions} object-api-name="Country__c" onchange={handleInputChange}
+                        data-id="countryId1" disabled="true"></lightning-record-picker>
+
+                </div>
+
+            </div>
+
+            <lightning-layout multiple-rows class="slds-m-around_xx-small">
+
+                <!-- Start of Product Table -->
+                <lightning-layout-item size="12" class="slds-m-horizontal_xx-small slds-m-vertical_small">
+                    <label class="slds-text-heading_medium slds-text-title_bold" style="font-size:21px">
+                    </label>
+                </lightning-layout-item>
+
+                <!-- Table Header -->
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr>
+                            <!-- <th class="slds-text-align_left">Product Family</th> -->
+                            <th class="slds-text-align_left">Product Name</th>
+                            <th class="slds-text-align_left">Quality</th>
+                            <th class="slds-text-align_left">Packaging</th>
+                            <th class="slds-text-align_left">Packing Type</th>
+                            <th class="slds-text-align_center">List Price</th>
+                            <th class="slds-text-align_left">Quantity</th>
+                            <th class="slds-text-align_left">Sales Price</th>
+                            <th class="slds-text-align_left">Comm Type</th>
+                            <th class="slds-text-align_left">Comm Value</th>
+                            <th class="slds-text-align_center">Comm %</th>
+                            <th class="slds-text-align_left">SP with Inco</th>
+                            <th class="slds-text-align_left">Freight Value</th>
+                            <th class="slds-text-align_left">Final SP</th>
+                            <th class="slds-text-align_left">Total Price</th>
+
+
+                            <th class="slds-text-align_center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dynamic Row Rendering for each product -->
+                        <template for:each={addAnswer} for:item="answer" for:index="index">
+                            <tr key={answer.index}>
+                                <!-- Product Family -->
+                                <!-- <td>
+                                    <lightning-combobox value={answer.prodFamily} variant="label-hidden"
+                                        options={optionsProductFamily} data-label="prodFamily" data-index={answer.index}
+                                        onchange={handleScoreChange}></lightning-combobox>
+                                </td> -->
+
+                                <!-- Product Name -->
+                                <td style="width: 325px;;">
+                                    <template if:true={answer.prodId}>
+                                        <c-look-up-component object-api-name="Product2" icon-name="standard:account"
+                                            data-index={answer.index} style="width: 300px;" data-label="prodId"
+                                            index={answer.index} default-record-id={answer.prodId}
+                                            return-fields="ProductCode" family={answer.prodFamily} sort-column="Name"
+                                            display-fields="" query-fields="['Name,ProductCode']"
+                                            onrecordselection={lookupRecord} filter={currencyfilter}
+                                            onfocus={lookupRecord}></c-look-up-component>
+                                    </template>
+                                    <template if:false={answer.prodId}>
+                                        <c-look-up-component object-api-name="Product2" icon-name="standard:account"
+                                            data-index={answer.index} style="width: 300px;" data-label="prodId"
+                                            return-fields="ProductCode" family={answer.prodFamily} sort-column="Name"
+                                            display-fields="" query-fields="['Name,ProductCode']"
+                                            onrecordselection={lookupRecord} filter={currencyfilter}
+                                            onfocus={lookupRecord}></c-look-up-component>
+                                    </template>
+                                </td>
+
+
+                                <!-- <td class="slds-text-align_center">
+                                        <span>{answer.listPrice}</span>
+                                    </td> -->
+
+                                <td style="width: 150px;">
+                                    <lightning-input variant="label-hidden" value={answer.quality} data-label="quality"
+                                        data-index={index} onchange={handleScoreChange}></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-combobox value={answer.packaging} variant="label-hidden"
+                                        options={optionsPackaging} data-label="packaging" data-index={answer.index}
+                                        onchange={handleScoreChange} style="width: 70px;"></lightning-combobox>
+                                </td>
+
+                                <td>
+                                    <lightning-combobox value={answer.PackingType} variant="label-hidden"
+                                        options={optionsPackingType} data-label="PackingType" data-index={answer.index}
+                                        onchange={handleScoreChange} style="width: 70px;"></lightning-combobox>
+                                </td>
+
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="listPrice"
+                                        data-index={answer.listPrice} value={answer.listPrice} style="width: 71px;"
+                                        disabled="true"></lightning-input>
+                                </td>
+
+                                <!-- Quantity -->
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="volume"
+                                        data-index={answer.index} value={answer.volume} onchange={handleScoreChange}
+                                        style="width: 60px;" required></lightning-input>
+                                </td>
+
+                                <!-- Price -->
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="price" data-index={answer.index}
+                                        value={answer.price} onchange={handleScoreChange}
+                                        style="width: 69px;"></lightning-input>
+                                </td>
+
+                                <!-- CommissionType -->
+                                <td>
+                                    <lightning-combobox value={answer.CommissionType} label="CommissionType"
+                                        variant="label-hidden" options={optionsCommissionType}
+                                        data-label="CommissionType" data-index={answer.index}
+                                        onchange={handleScoreChange} style="width: 87px;"
+                                        disabled={answer.isDisabled}></lightning-combobox>
+                                </td>
+
+                                <!-- Commission Value (Disabled if CommissionType is 'Percentage') -->
+                                <td class="slds-text-align_right" style="padding-right: 18px;padding-left: 10px;">
+                                    <lightning-input variant="label-hidden" data-label="commissionval"
+                                        data-index={answer.index} value={answer.commissionval}
+                                        onchange={handleScoreChange} disabled={answer.isvaldisabled}
+                                        style="width:76px;">
+                                    </lightning-input>
+                                </td>
+
+                                <!-- Commission Percentage (Disabled if CommissionType is 'Value') -->
+                                <td class="slds-text-align_right" style="padding-right: 18px;padding-left: 10px;">
+                                    <lightning-input variant="label-hidden" data-label="commissionper"
+                                        data-index={answer.index} value={answer.commissionper}
+                                        onchange={handleScoreChange} disabled={answer.isperdisabled}
+                                        style="width:60px;">
+                                    </lightning-input>
+                                </td>
+
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="totalprice"
+                                        data-index={answer.index} value={answer.totalprice}
+                                        disabled="true"></lightning-input>
+                                </td>
+
+
+
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="freightval"
+                                        data-index={answer.index} value={answer.freightval} onchange={handleScoreChange}
+                                        style="width: 72px;" disabled={answer.isFreightDisabled}></lightning-input>
+                                </td>
+
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="finalprice"
+                                        data-index={answer.index} value={answer.finalprice} disabled="true"
+                                        style="width:76px;"></lightning-input>
+                                </td>
+
+
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="totalpricefinal"
+                                        data-index={answer.index} value={answer.totalpricefinal} disabled="true"
+                                        style="width:76px;">
+                                    </lightning-input>
+                                </td>
+
+
+                                <!-- Actions -->
+                                <td class="slds-text-align_center">
+                                    <lightning-button-icon icon-name="utility:add" alternative-text="Add Product"
+                                        title="Add Product" onclick={addAnswerItem} data-index={answer.index}>
+                                    </lightning-button-icon>
+                                    <lightning-button-icon icon-name="utility:delete" alternative-text="Remove Product"
+                                        title="Remove Product" onclick={removeAnswer} data-index={answer.index}
+                                        class="slds-m-left_xx-small">
+                                    </lightning-button-icon>
+
+                                    <lightning-button-icon icon-name="utility:preview" alternative-text="Preview Prices"
+                                        onclick={handleShowPricesClick} title="Check Last 5 Prices"
+                                        class="slds-m-left_xx-small" data-index={answer.index}>
+                                    </lightning-button-icon>
+
+                                    <lightning-button-icon icon-name="utility:search" alternative-text="View Samples"
+                                        onclick={handleShowSamplesClick} title="View Sample References"
+                                        class="slds-m-left_xx-small" data-index={answer.index}>
+                                    </lightning-button-icon>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+            </lightning-layout>
+
+            <!-- Description and Submit Button -->
+            <div class="slds-grid slds-wrap slds-m-top_medium">
+
+                <div class="slds-col slds-size_1-of-1 slds-text-align_center">
+                    <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                    <lightning-button label="Submit" onclick={createOpportunity} style="margin-left: 10px;">
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+
+    <template if:true={isOpenFileView}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <!-- Close button and title -->
+                    <button class="slds-button slds-button_icon slds-modal__close" title="Close" onclick={handleClose}>
+                        <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Last Five Prices</h2>
+                </header>
+
+                <!-- Rest of your modal content -->
+                <div class="slds-modal__content">
+                    <template if:true={lastFivePrices.length}>
+                        <table class="slds-table slds-table_bordered">
+                            <!-- Table headers -->
+                            <thead>
+                                <tr>
+                                    <th>Enquiry Name</th>
+                                    <th>List Price</th>
+                                    <th>Quantity</th>
+                                    <th>Sales Price</th>
+                                    <th>Final Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={lastFivePrices} for:item="file">
+                                    <tr key={file.Id}>
+                                        <td>{file.Opportunity.Name}</td>
+                                        <td>{file.ListPrice}</td>
+                                        <td>{file.Quantity}</td>
+                                        <td>{file.UnitPrice}</td>
+                                        <td>{file.Final_Price__c}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </template>
+                    <template if:false={lastFivePrices.length}>
+                        <div class="slds-align_absolute-center slds-p-around_large">
+                            <div class="slds-text-heading_small">No Previous Prices Available for This Product</div>
+                        </div>
+                    </template>
+                </div>
+
+                <footer class="slds-modal__footer"
+                    style="padding-top: 7px; padding-bottom: 4px; display: flex; justify-content: center;">
+                    <lightning-button onclick={handleClose} title="Cancel" label="Cancel"></lightning-button>
+                </footer>
+            </div>
+        </section>
+    </template>
+
+    <!-- Sample References Modal -->
+    <template if:true={isSampleModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" style="max-width: 80%;">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close" title="Close"
+                        onclick={handleCloseSampleModal}>
+                        <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Sample References</h2>
+                    <p class="slds-m-top_x-small">Click on a reference to copy it to the Quality field</p>
+                </header>
+
+                <div class="slds-modal__content">
+                    <template if:true={sampleReferences.length}>
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+                                <tr>
+                                    <th class="slds-text-align_left">Reference Number</th>
+                                    <th class="slds-text-align_center">Approval Date</th>
+                                    <th class="slds-text-align_center">Status</th>
+                                    <th class="slds-text-align_center">Product Name</th>
+                                    <th class="slds-text-align_center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={sampleReferences} for:item="sample">
+                                    <tr key={sample.Id} class="slds-hint-parent">
+                                        <td class="slds-text-align_left">
+                                            <strong>{sample.Reference_Number__c}</strong>
+                                        </td>
+                                        <td class="slds-text-align_center">
+                                            {sample.Sample_Approved_Date__c}
+                                        </td>
+                                        <td class="slds-text-align_center">
+                                            <lightning-badge label={sample.Sample_Out_Status__c}
+                                                class="slds-theme_success"></lightning-badge>
+                                        </td>
+                                        <td class="slds-text-align_center">
+                                            {sample.Product_Name__r.Name}
+                                        </td>
+
+                                        <td class="slds-text-align_center">
+                                            <lightning-button label="Select" variant="brand"
+                                                data-value={sample.Reference_Number__c} onclick={handleSampleSelect}
+                                                title="Use this reference number"></lightning-button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </template>
+                    <template if:false={sampleReferences.length}>
+                        <div class="slds-align_absolute-center slds-p-around_large">
+                            <div class="slds-text-heading_small">No Sample References Available for This Product</div>
+
+                        </div>
+                    </template>
+                </div>
+
+                <footer class="slds-modal__footer"
+                    style="padding-top: 7px; padding-bottom: 4px; display: flex; justify-content: center;">
+                    <lightning-button onclick={handleCloseSampleModal} title="Cancel" label="Close"></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+</template>

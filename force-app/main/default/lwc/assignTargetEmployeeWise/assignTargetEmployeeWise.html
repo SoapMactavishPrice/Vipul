@@ -1,0 +1,292 @@
+<template>
+    <div if:true={showSpinner}>
+        <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+
+    <div>
+        <div>
+            <div class="slds-grid slds-p-vertical_xx-small">
+                <div class="slds-size_2-of-12">
+                    <div style="width: 60%">
+                        <lightning-combobox variant="label-hidden" data-show-entries-input
+                            value={pageLengthDefaultValue} options={pageLengthOptions} onchange={handlePageEntries}>
+                        </lightning-combobox>
+                    </div>
+                </div>
+                <div class="slds-size_4-of-12" onkeyup={handleSearch}>
+                    <lightning-input variant="label-hidden" type="search" onchange={handleSearching} name="Search"
+                        label="Search"></lightning-input>
+                </div>
+                <div class="slds-size_6-of-12">
+                    <div lwc:dom="manual" data-pagination class="pagination"></div>
+                </div>
+            </div>
+
+            <div if:true={hasDataInTable}>
+                <div if:true={yearly} class="slds-grid" style="overflow: auto">
+                    <div class="slds-size_1-of-12"></div>
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered targetdatatable">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col" class="slds-size_2-of-12" data-colname="Name" onclick={handleSort}>
+                                    <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                        {parameterLabel}
+                                    </div>
+                                </th>
+                                <th if:true={productcategory} scope="col" class="slds-size_2-of-12" data-colname="Name">
+                                    <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                        Product Code
+                                    </div>
+                                </th>
+                                <th if:true={productcategory} scope="col" class="slds-size_2-of-12" data-colname="Name">
+                                    <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                        Description
+                                    </div>
+                                </th>
+                                <th if:false={isEmployeeWiseTarget} scope="col" class="slds-size_2-of-12">
+                                    <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                        Target Quantity in KGS
+                                    </div>
+                                </th>
+                                <th scope="col" class="slds-size_2-of-12">
+                                    <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                        Target Amount in INR
+                                    </div>
+                                </th>
+                                <th scope="col" class="slds-size_2-of-12">
+                                    <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                        Target Amount in USD
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={data} for:item="item">
+                                <tr key={item.index} class={item.className}>
+                                    <td class="slds-size_2-of-12">
+                                        <div class="slds-truncate slds-p-around_xx-small">{item.ParameterName}</div>
+                                    </td>
+                                    <td if:true={productcategory} class="slds-size_2-of-12">
+                                        <div class="slds-truncate slds-p-around_xx-small">{item.ParameterCode}</div>
+                                    </td>
+                                    <td if:true={productcategory} class="slds-size_2-of-12">
+                                        <div class="slds-truncate slds-p-around_xx-small">{item.ParameterDesc}</div>
+                                    </td>
+                                    <td if:false={isEmployeeWiseTarget} class="slds-size_2-of-12">
+                                        <div if:true={item.targetAmountEdit} class="slds-truncate slds-p-around_none">
+                                            <!-- Quantity field - disabled for non-System Admin -->
+                                            <lightning-input value={item.Target_Quantity_New__c} type="number"
+                                                data-fieldname="Target_Quantity__c" variant="label-hidden"
+                                                formatter="number" data-id={item.ParameterId} step="0.01"
+                                                onchange={onDataInput} disabled={isQuantityDisabled}>
+                                            </lightning-input>
+                                            <div data-id={item.ParameterId} class="slds-form-element__help"
+                                                style="color: var(--slds-g-color-error-base-40,#ea001e)"></div>
+                                        </div>
+                                        <div if:false={item.targetAmountEdit}
+                                            class="slds-truncate slds-p-around_xx-small">
+                                            <lightning-formatted-number value={item.Target_Quantity__c}
+                                                format-style="number" currency-code="INR"></lightning-formatted-number>
+                                        </div>
+                                    </td>
+                                    <!-- Target Amount INR Column -->
+                                    <td class="slds-size_2-of-12">
+                                        <div if:true={item.targetAmountEdit} class="slds-truncate slds-p-around_none">
+                                            <!-- INR field - disabled for non-System Admin OR international users -->
+                                            <template if:true={item.isDomesticUser}>
+                                                <lightning-input value={item.Target_Amount_INR__c} type="number"
+                                                    data-fieldname="Target_Amount_INR__c" variant="label-hidden"
+                                                    formatter="number" data-id={item.ParameterId} step="0.01"
+                                                    onchange={onDataInput} disabled={isINRDisabled}>
+                                                </lightning-input>
+                                            </template>
+                                            <template if:false={item.isDomesticUser}>
+                                                <lightning-input value={item.Target_Amount_INR__c} type="number"
+                                                    data-fieldname="Target_Amount_INR__c" variant="label-hidden"
+                                                    formatter="number" data-id={item.ParameterId} step="0.01" disabled
+                                                    onchange={onDataInput}>
+                                                </lightning-input>
+                                            </template>
+                                            <div data-id={item.ParameterId} class="slds-form-element__help"
+                                                style="color: var(--slds-g-color-error-base-40,#ea001e)"></div>
+                                        </div>
+                                        <div if:false={item.targetAmountEdit}
+                                            class="slds-truncate slds-p-around_xx-small">
+                                            <lightning-formatted-number value={item.Target_Amount_INR__c}
+                                                format-style="decimal" currency-code="INR">
+                                            </lightning-formatted-number>
+                                        </div>
+                                    </td>
+
+                                    <!-- Target Amount USD Column -->
+                                    <td class="slds-size_2-of-12">
+                                        <div if:true={item.targetAmountEdit} class="slds-truncate slds-p-around_none">
+                                            <!-- USD field - disabled for non-System Admin OR domestic users -->
+                                            <template if:true={item.isInternationalUser}>
+                                                <lightning-input value={item.Target_Amount_USD__c}
+                                                    data-fieldname="Target_Amount_USD__c" type="number"
+                                                    variant="label-hidden" formatter="number" data-id={item.ParameterId}
+                                                    step="0.01" onchange={onDataInput} disabled={isUSDDisabled}>
+                                                </lightning-input>
+                                            </template>
+                                            <template if:false={item.isInternationalUser}>
+                                                <lightning-input value={item.Target_Amount_USD__c}
+                                                    data-fieldname="Target_Amount_USD__c" type="number"
+                                                    variant="label-hidden" formatter="number" data-id={item.ParameterId}
+                                                    step="0.01" disabled onchange={onDataInput}>
+                                                </lightning-input>
+                                            </template>
+                                            <div data-id={item.ParameterId} class="slds-form-element__help"
+                                                style="color: var(--slds-g-color-error-base-40,#ea001e)"></div>
+                                        </div>
+                                        <div if:false={item.targetAmountEdit}
+                                            class="slds-truncate slds-p-around_xx-small">
+                                            <lightning-formatted-number value={item.Target_Amount_USD__c}
+                                                format-style="decimal" currency-code="USD">
+                                            </lightning-formatted-number>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <div class="slds-size_4-of-12"></div>
+                </div>
+
+                <div if:true={monthly}>
+                    <div class="scrollwrappper1 targetdatatable">
+                        <div class="scrollwrappper2">
+                            <table class="slds-table slds-table_bordered monthlytable">
+                                <thead>
+                                    <tr class="slds-text-title_caps">
+                                        <th scope="col">
+                                            <div class="slds-truncate slds-p-around_xx-small" style="width: 200px">
+                                                {parameterLabel}
+                                            </div>
+                                        </th>
+                                        <th if:true={productcategory} scope="col" class="slds-size_2-of-12"
+                                            data-colname="Name">
+                                            <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                                Product Code
+                                            </div>
+                                        </th>
+                                        <th if:true={productcategory} scope="col" class="slds-size_2-of-12"
+                                            data-colname="Name">
+                                            <div class="slds-truncate slds-p-around_xx-small" style="display: flex">
+                                                Description
+                                            </div>
+                                        </th>
+                                        <template for:each={months} for:item="item">
+                                            <th scope="col" key={item.index}>
+                                                <div class="slds-truncate slds-p-around_xx-small" style="width: 110px">
+                                                    {item}
+                                                </div>
+                                            </th>
+                                        </template>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={data} for:item="item">
+                                        <tr key={item.index}>
+                                            <td>
+                                                <div
+                                                    style="display: flex;justify-content: space-around;align-items:center;">
+                                                    <div class="slds-truncate slds-p-around_xx-small">
+                                                        {item.ParameterName}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td if:true={productcategory}>
+                                                <div class="slds-truncate slds-p-around_xx-small">
+                                                    {item.ParameterCode}
+                                                </div>
+                                            </td>
+                                            <td if:true={productcategory}>
+                                                <div
+                                                    style="display: flex;justify-content: space-around;align-items:center;">
+                                                    <div class="slds-truncate slds-p-around_xx-small">
+                                                        {item.ParameterDesc}
+                                                    </div>
+                                                    <div style="display: flex;flex-direction: column;">
+                                                        <lightning-formatted-text if:false={isEmployeeWiseTarget}
+                                                            class="slds-form-element__label slds-col"
+                                                            style="font-size: medium;"
+                                                            value="Quantity"></lightning-formatted-text><br>
+                                                        <lightning-formatted-text
+                                                            class="slds-form-element__label slds-col"
+                                                            style="font-size: medium;"
+                                                            value="Amount"></lightning-formatted-text>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <template for:each={item.childData} for:item="childItem">
+                                                <td key={childItem.childIndex} class={childItem.className}>
+                                                    <div if:true={childItem.targetAmountEdit}
+                                                        class="slds-truncate slds-p-around_none">
+                                                        <lightning-input if:false={isEmployeeWiseTarget}
+                                                            value={childItem.Monthly_Target_Quantity__c} type="number"
+                                                            variant="label-hidden" step="0.01"
+                                                            data-id={item.ParameterId} data-type="qty"
+                                                            data-childid={childItem.ParameterId} onchange={onDataInput}
+                                                            disabled={isNotSystemAdmin}>
+                                                        </lightning-input><br>
+                                                        <lightning-input value={childItem.Monthly_Target_Amount__c}
+                                                            type="number" variant="label-hidden" step="0.01"
+                                                            data-id={item.ParameterId} data-type="amt"
+                                                            data-childid={childItem.ParameterId} onchange={onDataInput}
+                                                            disabled={isNotSystemAdmin}>
+                                                        </lightning-input>
+                                                        <div data-childid={childItem.ParameterId}
+                                                            class="slds-form-element__help"
+                                                            style="color: var(--slds-g-color-error-base-40,#ea001e)">
+                                                        </div>
+                                                    </div>
+                                                    <div if:false={childItem.targetAmountEdit}
+                                                        class="slds-truncate slds-p-around_xx-small">
+                                                        <lightning-input if:false={isEmployeeWiseTarget}
+                                                            value={childItem.Monthly_Target_Quantity__c} type="number"
+                                                            variant="label-hidden" disabled>
+                                                        </lightning-input><br>
+                                                        <lightning-input value={childItem.Monthly_Target_Amount__c}
+                                                            type="number" variant="label-hidden"
+                                                            disabled></lightning-input>
+                                                    </div>
+                                                </td>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div if:true={isDataModified} class="slds-m-around_none slds-p-around_none slds-docked-form-footer">
+                <lightning-layout vertical-align="center" class="slds-m-vertical_x-small">
+                    <lightning-layout-item class="slds-col slds-size_2-of-5"></lightning-layout-item>
+                    <lightning-layout-item class="slds-col slds-size_1-of-5 slds-align_absolute-center">
+                        <lightning-button variant="button" type="button" onclick={handleReset} label="Cancel"
+                            class="slds-m-horizontal_small">
+                        </lightning-button>
+                        <lightning-button variant="brand" type="button" onclick={handleSave} label="Save"
+                            class="slds-m-horizontal_small">
+                        </lightning-button>
+                    </lightning-layout-item>
+                    <lightning-layout-item class="slds-col slds-size_3-of-5"></lightning-layout-item>
+                </lightning-layout>
+            </div>
+        </div>
+
+        <div if:false={hasDataInTable} style="width: 95%">
+            <div
+                class="slds-grid slds-gutters slds-wrap slds-p-horizontal_small slds-m-top_xx-small slds-m-bottom_xx-small">
+                <div class="slds-col slds-size_3-of-12"></div>
+                <div class="slds-col slds-size_6-of-12">
+                    <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg">
+                </div>
+            </div>
+            <div class="slds-col slds-size_3-of-12"></div>
+        </div>
+    </div>
+</template>

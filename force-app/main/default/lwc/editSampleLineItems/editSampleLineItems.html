@@ -1,0 +1,98 @@
+<template>
+    <lightning-card>
+        <div class="title-center">Edit Sample Out</div>
+        <template if:true={sampleOutLineItems.length}>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">CI</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Unit of Measure</th>
+                        <th scope="col">Packets</th>
+                        <th scope="col">Quality</th>
+                        <th scope="col">Application</th>
+                        <th scope="col">Sample Sent to Unit</th>
+                        <th scope="col">Reference No.</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Comments</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={sampleOutLineItems} for:item="item" for:index="index">
+                        <tr key={item.Id}>
+                            <td>{item.Product_Name__r.Name}</td>
+                            <td>
+                                <lightning-input type="text" value={item.Colour_Index_Name__c}
+                                    data-field="Colour_Index_Name__c" data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="number" value={item.Quantity__c} data-field="Quantity__c"
+                                    data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-combobox value={item.Unit_of_Measure__c} options={unitOfMeasureOptions}
+                                    data-field="Unit_of_Measure__c" data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;">
+                                </lightning-combobox>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.Packets__c} data-field="Packets__c"
+                                    data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.Quality__c} data-field="Quality__c"
+                                    data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.Application__c} data-field="Application__c"
+                                    data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            <td class="slds-text-align_center">
+                                <lightning-record-picker label="Select Unit" object-api-name="Unit_Master__c"
+                                    display-field="Name" value-field="Id" placeholder="Search Unit..."
+                                    variant="label-hidden" onchange={handleUnitChange} data-index={index}
+                                    value={item.Sample_Sent_to_Unit__c}>
+                                </lightning-record-picker>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.Reference_Number__c}
+                                data-field="Reference_Number__c" data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-combobox value={item.Status__c} options={statusOptions}
+                                    data-field="Status__c" data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;">
+                                </lightning-combobox>
+                            </td>
+                            <td>
+                                <lightning-input type="text" value={item.Comments__c}
+                                    data-field="Comments__c" data-index={index} onchange={handleChange}
+                                    style="margin-top: -14px;"></lightning-input>
+                            </td>
+                            
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <div class="slds-m-top_medium slds-text-align_center"
+                style="display: flex; justify-content: center; gap: 8px;">
+                
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                <lightning-button variant="brand" label="Save" onclick={handleSave}
+                    disabled={isLoading}></lightning-button>
+            </div>
+        </template>
+        <template if:false={sampleOutLineItems.length}>
+            <p>No Sample Out Line Items Found</p>
+        </template>
+    </lightning-card>
+</template>

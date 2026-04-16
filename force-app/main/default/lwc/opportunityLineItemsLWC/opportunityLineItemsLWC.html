@@ -1,0 +1,197 @@
+<template>
+    <lightning-card>
+        <div class="title-center">Edit All Products</div>
+        <template if:true={lineItems.length}>
+            <!-- Scrollable Table Container -->
+            <div class="scroll-container">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered table">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Product Name
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">
+                                {listPriceHeader}
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;width: 70px;">Quantity in KG</th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Packaging
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Quality</th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Purch
+                                Price (INR)</th>
+
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Purch Price
+                                Status</th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Reject Reason
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Converter
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">
+                                {conPriceHeader}
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Margin Type
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Margin Value
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Margin %</th>
+
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">
+                                {salesPriceHeader}
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Comm Type
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Comm Value
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Comm %
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">SP with
+                                IncoTerms
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Freight Value
+                            </th>
+                            <!-- Non-editable Final Price and Total Price with Inco Terms columns -->
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Final Sales
+                                Price
+                            </th>
+                            <th scope="col" style="background-color:#0176D3;color:white;white-space:auto;">Total Price
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={lineItems} for:item="item" for:index="index">
+                            <tr key={item.Id}>
+                                <td>{item.PricebookEntry.Product2.Name}</td>
+
+                                <td class="slds-text-align_right">
+                                    <lightning-input variant="label-hidden" data-label="ListPrice"
+                                        data-index={item.ListPrice} value={item.ListPrice} style="margin-top: 18px;"
+                                        disabled="true"></lightning-input>
+                                </td>
+
+                                <!-- <td>{item.ListPrice}</td> -->
+                                <td>
+                                    <lightning-input type="number" value={item.Quantity} data-field="Quantity"
+                                        data-index={index} onchange={handleChange} step="any"></lightning-input>
+                                </td>
+                                <td>
+                                    <lightning-combobox value={item.Packaging__c} data-field="Packaging__c"
+                                        data-index={index} options={packagingTypeOptions}
+                                        onchange={handleChange}></lightning-combobox>
+                                </td>
+                                <td>
+                                    <lightning-input value={item.Quality__c} data-field="Quality__c"
+                                        data-index={index} onchange={handleChange} step="any" style="width: 70px;"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="number" value={item.Purchase_Price_in_INR__c} step="any"
+                                        data-field="Purchase_Price_in_INR__c" data-index={index} onchange={handleChange}
+                                        disabled></lightning-input>
+                                </td>
+
+
+                                <td>
+
+                                    <lightning-combobox name="purchasePriceStatus" value={item.Purchase_Price_Status__c}
+                                        options={purchasePriceStatusOptions} data-index={index}
+                                        onchange={handlePurchasePriceStatusChange}
+                                        disabled={item.isPurchasePriceStatusDisabled}></lightning-combobox>
+                                </td>
+
+                                <td>
+                                    <template if:true={item.showRejectReason}>
+                                        <lightning-textarea value={item.Reject_Reason__c} data-index={index}
+                                            data-field="Reject_Reason__c" onchange={handleRejectReasonChange} required
+                                            style="width: 100%;"></lightning-textarea>
+                                    </template>
+                                </td>
+
+
+                                <td>
+                                    <lightning-input type="text" value={item.Converter__c} data-field="Converter__c"
+                                        data-index={index} onchange={handleChange} disabled={item.isConverterDisabled}
+                                        step="any"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="text" value={item.Converted_Purchase_Price__c}
+                                        data-field="Converted_Purchase_Price__c" data-index={index}
+                                        onchange={handleChange} disabled={item.isConvertedPriceDisabled}
+                                        step="any"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-combobox value={item.Margin_Type__c} data-field="Margin_Type__c"
+                                        data-index={index} options={marginTypeOptions} onchange={handleChange}
+                                        disabled={item.isMarginTypeDisabled}></lightning-combobox>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" value={item.Margin_Value__c}
+                                        data-field="Margin_Value__c" data-index={index} onchange={handleChange}
+                                        disabled={item.isMarginValueDisabled} step="any"></lightning-input>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" value={item.Margin_Percent__c}
+                                        data-field="Margin_Percent__c" data-index={index} onchange={handleChange}
+                                        disabled={item.isMarginPercentDisabled} step="any"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="number" value={item.UnitPrice} data-field="UnitPrice"
+                                        data-index={index} onchange={handleChange} step="any"></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-combobox value={item.Commission_Type__c} data-field="Commission_Type__c"
+                                        data-index={index} options={commissionTypeOptions}
+                                        onchange={handleChange}></lightning-combobox>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" value={item.Commission_Value__c}
+                                        data-field="Commission_Value__c" data-index={index} onchange={handleChange}
+                                        disabled={item.isCommissionValueDisabled} step="any"></lightning-input>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" value={item.Commission_Percent__c}
+                                        data-field="Commission_Percent__c" data-index={index} onchange={handleChange}
+                                        disabled={item.isCommissionPercentDisabled} step="any"></lightning-input>
+                                </td>
+                                <td>
+                                    <!-- Total Price with Inco Terms field is now calculated -->
+                                    <lightning-input type="number" value={item.Total_Price_with_Inco_Terms__c}
+                                        disabled></lightning-input>
+                                </td>
+                                <td>
+                                    <lightning-input type="number" data-field="Freight_Value__c" data-index={index}
+                                        value={item.Freight_Value__c} onchange={handleChange}
+                                        disabled={item.isFreightValueDisabled} step="any"></lightning-input>
+
+                                </td>
+                                <!-- Final Price calculation: Total Price with Inco Terms + Freight Value -->
+                                <td>
+                                    <lightning-input type="number" value={item.Final_Price__c} disabled
+                                        data-index={index} onchange={handleChange}></lightning-input>
+                                </td>
+
+                                <td>
+                                    <lightning-input type="number" value={item.Total_Price__c} disabled
+                                        data-index={index} onchange={handleChange}></lightning-input>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Save & Cancel Buttons -->
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isLoading}
+                    class="slds-m-right_small"></lightning-button>
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+            </div>
+        </template>
+
+        <template if:false={lineItems.length}>
+            <p class="slds-p-around_medium">No Line Items Found</p>
+        </template>
+    </lightning-card>
+</template>

@@ -1,0 +1,21 @@
+/* Table alignment */
+.slds-table th,
+.slds-table td {
+    vertical-align: middle;
+}
+
+/* Fixed column widths */
+.col-check { width: 10%; }
+.col-product { width: 14%; }
+.col-ci { width: 10%; }
+.col-qty { width: 10%; }
+.col-packets { width: 8%; }
+.col-quality { width: 10%; }
+.col-app { width: 12%; }
+.col-unit { width: 16%; }
+.col-actions { width: 10%; }
+
+/* Remove unwanted spacing inside table */
+.slds-table lightning-input {
+    margin: 0;
+}
