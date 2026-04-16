@@ -778,83 +778,53 @@ public with sharing class TargetModule {
             Map<String, Object> result = new Map<String, Object>();
             List<sObject> records = new List<sObject>();
             List<Object> dataMap = (List<Object>)JSON.deserializeUntyped(data);
-            CurrencyType usdCurrency = [SELECT Id, IsoCode, ConversionRate FROM CurrencyType WHERE IsoCode = 'USD' LIMIT 1];
             
             if (subType == 'Yearly') {
                 for (Object obj : dataMap) {
                     Map<String, Object> recMap = (Map<String, Object>)obj;
-                    System.debug('Processing record: ' + recMap);
-                    
+                    String division = (String)recMap.get('division');
+                    Boolean isInternational = division == 'International';
+
                     switch on type {
                         when 'Employee_Wise_Target__c' {
                             Employee_Wise_Target__c rec = new Employee_Wise_Target__c();
-                            
-                            // Handle existing or new record
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             } else {
                                 rec.Fiscal_Year__c = fiscalYearId;
                             }
-                            
-                            // Set common fields
                             rec.Employee__c = String.valueOf(recMap.get('ParameterId'));
-                            
-                            // Handle amount based on division
-                            String division = (String)recMap.get('division');
-                            
-                            System.debug(parseDecimalSafe(recMap.get('Target_Amount_USD__c')));
-                            System.debug(usdCurrency.ConversionRate);
-                            
-                            if (division == 'International') {
-                                rec.CurrencyIsoCode = 'USD';
-                                // rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c')) / usdCurrency.ConversionRate;
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c'));
-                            } else {
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
-                            }
-                            
-                            // Preserve quantity fields
+                            // Explicitly set currency, save as-is — no conversion
+                            rec.CurrencyIsoCode = isInternational ? 'USD' : 'INR';
+                            rec.Target_Amount__c = isInternational ?
+                                parseDecimalSafe(recMap.get('Target_Amount_USD__c')) :
+                                parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
                             if (recMap.containsKey('Target_Quantity__c')) {
                                 rec.Target_Quantity__c = parseDecimalSafe(recMap.get('Target_Quantity__c'));
                             }
-                            
-                            System.debug('Saving Employee_Wise_Target__c: ' + rec);
                             records.add(rec);
                         }
                         when 'Employee_Wise_Account_Target__c' {
                             Employee_Wise_Account_Target__c rec = new Employee_Wise_Account_Target__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             } else {
                                 rec.Fiscal_Year__c = fiscalYearId;
                                 rec.Employee__c = employeeId;
                             }
-                            
                             rec.Account__c = String.valueOf(recMap.get('ParameterId'));
-                            
-                            // Handle amount based on division
-                            String division = (String)recMap.get('division');
-                            
-                            if (division == 'International') {
-                                rec.CurrencyIsoCode = 'USD';
-                                // rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c')) / usdCurrency.ConversionRate;
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c'));
-                            } else {
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
-                            }
-                            
-                            // Preserve quantity fields
+                            // Explicitly set currency, save as-is — no conversion
+                            rec.CurrencyIsoCode = isInternational ? 'USD' : 'INR';
+                            rec.Target_Amount__c = isInternational ?
+                                parseDecimalSafe(recMap.get('Target_Amount_USD__c')) :
+                                parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
                             if (recMap.containsKey('Target_Quantity__c')) {
                                 rec.Target_Quantity__c = parseDecimalSafe(recMap.get('Target_Quantity__c'));
                             }
-                            
-                            System.debug('Saving Employee_Wise_Account_Target__c: ' + rec);
                             records.add(rec);
                         }
                         when 'Account_Wise_Product_Target__c' {
                             Account_Wise_Product_Target__c rec = new Account_Wise_Product_Target__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             } else {
@@ -862,58 +832,38 @@ public with sharing class TargetModule {
                                 rec.Account__c = accId;
                                 rec.Employee__c = employeeId;
                             }
-                            
                             rec.Product__c = String.valueOf(recMap.get('ParameterId'));
                             rec.Product_Code__c = String.valueOf(recMap.get('ParameterCode'));
                             rec.Description__c = String.valueOf(recMap.get('ParameterDesc'));
-                            
-                            // Handle amount based on division
-                            String division = (String)recMap.get('division');
-                            if (division == 'International') {
-                                rec.CurrencyIsoCode = 'USD';
-                                //      rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c')) / usdCurrency.ConversionRate;
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c'));
-                            } else {
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
-                            }
-                            
-                            // Preserve quantity fields
+                            // Explicitly set currency, save as-is — no conversion
+                            rec.CurrencyIsoCode = isInternational ? 'USD' : 'INR';
+                            rec.Target_Amount__c = isInternational ?
+                                parseDecimalSafe(recMap.get('Target_Amount_USD__c')) :
+                                parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
                             if (recMap.containsKey('Target_Quantity__c')) {
                                 rec.Target_Quantity__c = parseDecimalSafe(recMap.get('Target_Quantity__c'));
                             }
-                            
-                            System.debug('Saving Account_Wise_Product_Target__c: ' + rec);
                             records.add(rec);
                         }
                         when 'Employee_Wise_Product_Target__c' {
                             Employee_Wise_Product_Target__c rec = new Employee_Wise_Product_Target__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             } else {
                                 rec.Fiscal_Year__c = fiscalYearId;
                                 rec.Employee__c = employeeId;
                             }
-                            
                             rec.Product__c = String.valueOf(recMap.get('ParameterId'));
                             rec.Product_Code__c = String.valueOf(recMap.get('ParameterCode'));
                             rec.Description__c = String.valueOf(recMap.get('ParameterDesc'));
-                            
-                            // Handle amount based on division
-                            String division = (String)recMap.get('division');
-                            if (division == 'International') {
-                                rec.CurrencyIsoCode = 'USD';
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_USD__c')) / usdCurrency.ConversionRate;
-                            } else {
-                                rec.Target_Amount__c = parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
-                            }
-                            
-                            // Preserve quantity fields
+                            // Explicitly set currency, save as-is — no conversion
+                            rec.CurrencyIsoCode = isInternational ? 'USD' : 'INR';
+                            rec.Target_Amount__c = isInternational ?
+                                parseDecimalSafe(recMap.get('Target_Amount_USD__c')) :
+                                parseDecimalSafe(recMap.get('Target_Amount_INR__c'));
                             if (recMap.containsKey('Target_Quantity__c')) {
                                 rec.Target_Quantity__c = parseDecimalSafe(recMap.get('Target_Quantity__c'));
                             }
-                            
-                            System.debug('Saving Employee_Wise_Product_Target__c: ' + rec);
                             records.add(rec);
                         }
                     }
@@ -925,62 +875,46 @@ public with sharing class TargetModule {
                     switch on type {
                         when 'Employee_Wise_Target__c' {
                             Employee_Wise_Target_Line_Item__c rec = new Employee_Wise_Target_Line_Item__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             }
-                            
-                            rec.CurrencyIsoCode = 'USD';
-                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c')) / usdCurrency.ConversionRate;
+                            // Save value as-is, no conversion
+                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c'));
                             rec.Monthly_Target_Quantity__c = parseDecimalSafe(recMap.get('Monthly_Target_Quantity__c'));
-                            
-                            System.debug('Saving Employee_Wise_Target_Line_Item__c: ' + rec);
                             records.add(rec);
                         }
                         when 'Employee_Wise_Account_Target__c' {
                             Employee_Wise_Account_Target_Line_Item__c rec = new Employee_Wise_Account_Target_Line_Item__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             }
-                            
-                            rec.CurrencyIsoCode = 'USD';
-                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c')) / usdCurrency.ConversionRate;
+                            // Save value as-is, no conversion
+                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c'));
                             rec.Monthly_Target_Quantity__c = parseDecimalSafe(recMap.get('Monthly_Target_Quantity__c'));
-                            
-                            System.debug('Saving Employee_Wise_Account_Target_Line_Item__c: ' + rec);
                             records.add(rec);
                         }
                         when 'Account_Wise_Product_Target__c' {
                             Account_Wise_Product_Target_Line_Item__c rec = new Account_Wise_Product_Target_Line_Item__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             }
-                            
                             rec.Product_Code__c = String.valueOf(recMap.get('ParameterCode'));
                             rec.Description__c = String.valueOf(recMap.get('ParameterDesc'));
-                            rec.CurrencyIsoCode = 'USD';
-                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c')) / usdCurrency.ConversionRate;
+                            // Save value as-is, no conversion
+                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c'));
                             rec.Monthly_Target_Quantity__c = parseDecimalSafe(recMap.get('Monthly_Target_Quantity__c'));
-                            
-                            System.debug('Saving Account_Wise_Product_Target_Line_Item__c: ' + rec);
                             records.add(rec);
                         }
                         when 'Employee_Wise_Product_Target__c' {
                             Employee_Wise_Product_Target_Line_Item__c rec = new Employee_Wise_Product_Target_Line_Item__c();
-                            
                             if (String.isNotBlank(String.valueOf(recMap.get('Id')))) {
                                 rec.Id = String.valueOf(recMap.get('Id'));
                             }
-                            
                             rec.Product_Code__c = String.valueOf(recMap.get('ParameterCode'));
                             rec.Description__c = String.valueOf(recMap.get('ParameterDesc'));
-                            rec.CurrencyIsoCode = 'USD';
-                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c')) / usdCurrency.ConversionRate;
+                            // Save value as-is, no conversion
+                            rec.Monthly_Target_Amount__c = parseDecimalSafe(recMap.get('Monthly_Target_Amount__c'));
                             rec.Monthly_Target_Quantity__c = parseDecimalSafe(recMap.get('Monthly_Target_Quantity__c'));
-                            
-                            System.debug('Saving Employee_Wise_Product_Target_Line_Item__c: ' + rec);
                             records.add(rec);
                         }
                     }
@@ -997,8 +931,10 @@ public with sharing class TargetModule {
                 Map<String, Object> tempMap = new Map<String, Object>();
                 tempMap.put('status', res.isSuccess());
                 
-                // Set appropriate ID based on record type
-                switch on type {
+                String savedRecordType = String.valueOf(records[i].getSObjectType());
+
+                // Use the actual saved record type so monthly line items don't try to read header fields.
+                switch on savedRecordType {
                     when 'Employee_Wise_Target__c' {
                         tempMap.put('ParameterId', records[i].get('Employee__c'));
                     }
@@ -1009,13 +945,13 @@ public with sharing class TargetModule {
                         tempMap.put('ParameterId', records[i].get('Product__c'));
                     }
                     when 'Employee_Wise_Target_Line_Item__c' {
-                        tempMap.put('ParameterId', records[i].get('Id'));
+                        tempMap.put('ParameterId', res.getId());
                     }
                     when 'Employee_Wise_Account_Target_Line_Item__c' {
-                        tempMap.put('ParameterId', records[i].get('Id'));
+                        tempMap.put('ParameterId', res.getId());
                     }
                     when 'Account_Wise_Product_Target_Line_Item__c', 'Employee_Wise_Product_Target_Line_Item__c' {
-                        tempMap.put('ParameterId', records[i].get('Id'));
+                        tempMap.put('ParameterId', res.getId());
                     }
                 }
                 
@@ -1032,7 +968,7 @@ public with sharing class TargetModule {
             System.debug('Error in saveRecords: ' + e.getMessage() + ' at line ' + e.getLineNumber());
             Map<String, Object> errorResult = new Map<String, Object>();
             errorResult.put('status', 'Error');
-            //   errorResult.put('message', e.message);
+            errorResult.put('message', e.getMessage());
             return JSON.serialize(errorResult);
         }
     }

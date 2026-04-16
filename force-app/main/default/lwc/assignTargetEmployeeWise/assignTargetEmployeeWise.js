@@ -418,9 +418,23 @@ export default class AssignTargetEmployeeWise extends LightningElement {
                         console.log('getMonthlyData jsonData ->', jsonData);
 
                         if (jsonData.parameterData != undefined || jsonData.parameterData != null) {
-                            this.records = jsonData.parameterData;
+                            this.records = (jsonData.parameterData || []).map(record => {
+                                return {
+                                    ...record,
+                                    childData: (record.childData || []).map(child => {
+                                        return {
+                                            ...child,
+                                            Id: child.Id || child.ParameterId,
+                                            Monthly_Target_Quantity__c_original: child.Monthly_Target_Quantity__c,
+                                            Monthly_Target_Amount__c_original: child.Monthly_Target_Amount__c,
+                                            isDataModified: false,
+                                            className: child.className || ''
+                                        };
+                                    })
+                                };
+                            });
                             this.months = jsonData.months;
-                            this.hasDataInTable = true;
+                            this.hasDataInTable = this.records.length > 0;
                             this.setDefaultView();
                         } else {
                             this.hasDataInTable = false;
@@ -887,6 +901,344 @@ export default class AssignTargetEmployeeWise extends LightningElement {
         }
     }
 
+    normalizeNumericValue(value) {
+        if (value === '' || value === undefined || value === null) {
+            return null;
+        }
+
+        const numericValue = Number(value);
+        return Number.isNaN(numericValue) ? null : numericValue;
+    }
+
+    hasValueChanged(originalValue, currentValue) {
+        return this.normalizeNumericValue(originalValue) !== this.normalizeNumericValue(currentValue);
+    }
+
+    getMonthlyRecordContext(childId) {
+        for (const parentRecord of this.records || []) {
+            const childRecord = (parentRecord.childData || []).find(child => child.ParameterId === childId);
+            if (childRecord) {
+                return { parentRecord, childRecord };
+            }
+        }
+
+        return {};
+    }
+
+    handleYearlyInput(event, numericValue) {
+        const fieldName = event.currentTarget.dataset.fieldname;
+        const recordId = event.currentTarget.dataset.id;
+        const sourceRecord = (this.records || []).find(record => record.ParameterId === recordId);
+
+        if (!sourceRecord || !fieldName) {
+            return;
+        }
+
+        const modifiedRecord = this.allModifiedRecords[recordId] ?
+            { ...this.allModifiedRecords[recordId] } :
+            {
+                ...sourceRecord,
+                currencyType: sourceRecord.division === 'International' ? 'USD' : 'INR'
+            };
+
+        if (fieldName === 'Target_Quantity__c') {
+            modifiedRecord.Target_Quantity_New__c = numericValue;
+        } else if (fieldName === 'Target_Amount_INR__c') {
+            modifiedRecord.Target_Amount_INR__c = numericValue;
+            modifiedRecord.currencyType = 'INR';
+        } else if (fieldName === 'Target_Amount_USD__c') {
+            modifiedRecord.Target_Amount_USD__c = numericValue;
+            modifiedRecord.currencyType = 'USD';
+        }
+
+        const originalQuantity = sourceRecord.Target_Quantity_New__c ?? sourceRecord.Target_Quantity__c;
+        const isModified =
+            this.hasValueChanged(originalQuantity, modifiedRecord.Target_Quantity_New__c) ||
+            this.hasValueChanged(sourceRecord.Target_Amount_INR__c, modifiedRecord.Target_Amount_INR__c) ||
+            this.hasValueChanged(sourceRecord.Target_Amount_USD__c, modifiedRecord.Target_Amount_USD__c);
+
+        if (isModified) {
+            modifiedRecord.isDataModified = true;
+            modifiedRecord.className = 'undo';
+            this.allModifiedRecords[recordId] = modifiedRecord;
+        } else {
+            delete this.allModifiedRecords[recordId];
+        }
+    }
+
+    handleMonthlyInput(event, numericValue) {
+        const childId = event.currentTarget.dataset.childid;
+        const fieldType = event.currentTarget.dataset.type;
+        const { parentRecord, childRecord } = this.getMonthlyRecordContext(childId);
+
+        if (!parentRecord || !childRecord || !fieldType) {
+            return;
+        }
+
+        const modifiedRecord = this.allModifiedRecords[childId] ?
+            { ...this.allModifiedRecords[childId] } :
+            {
+                ...childRecord,
+                Id: childRecord.Id || childRecord.ParameterId,
+                ParameterCode: parentRecord.ParameterCode || null,
+                ParameterDesc: parentRecord.ParameterDesc || null,
+                division: parentRecord.division || null
+            };
+
+        if (fieldType === 'qty') {
+            modifiedRecord.Monthly_Target_Quantity__c = numericValue;
+        } else if (fieldType === 'amt') {
+            modifiedRecord.Monthly_Target_Amount__c = numericValue;
+        }
+
+        const isModified =
+            this.hasValueChanged(childRecord.Monthly_Target_Quantity__c_original, modifiedRecord.Monthly_Target_Quantity__c) ||
+            this.hasValueChanged(childRecord.Monthly_Target_Amount__c_original, modifiedRecord.Monthly_Target_Amount__c);
+
+        if (isModified) {
+            modifiedRecord.isDataModified = true;
+            modifiedRecord.className = 'undo';
+            this.allModifiedRecords[childId] = modifiedRecord;
+        } else {
+            delete this.allModifiedRecords[childId];
+        }
+    }
+
+    onDataInput(event) {
+        try {
+            let value = event.target.value;
+            value = (value === '' || value === undefined || value === null) ? null : value.toString().trim();
+
+            let numericValue = null;
+            if (value !== null) {
+                numericValue = parseFloat(value);
+                if (Number.isNaN(numericValue)) {
+                    this.showToast('Error', 'Please enter a valid number', 'error');
+                    event.target.value = '';
+                    return;
+                }
+            }
+
+            this.allModifiedRecords = this.allModifiedRecords || {};
+
+            if (this.monthly) {
+                this.handleMonthlyInput(event, numericValue);
+            } else {
+                this.handleYearlyInput(event, numericValue);
+            }
+
+            this.isDataModified = Object.keys(this.allModifiedRecords).length > 0;
+            this.handleIsDataModified();
+            this.validateTotals();
+        } catch (error) {
+            console.error('Input Processing Error:', error);
+            this.showToast('Error', 'Failed to process input', 'error');
+        }
+    }
+
+    calculateTotals() {
+        let totalQuantity = 0;
+        let totalAmount = 0;
+
+        if (this.monthly) {
+            (this.records || []).forEach(record => {
+                (record.childData || []).forEach(child => {
+                    const modifiedChild = this.allModifiedRecords[child.ParameterId];
+                    const quantityValue = modifiedChild ? modifiedChild.Monthly_Target_Quantity__c : child.Monthly_Target_Quantity__c;
+                    const amountValue = modifiedChild ? modifiedChild.Monthly_Target_Amount__c : child.Monthly_Target_Amount__c;
+
+                    if (quantityValue !== null && quantityValue !== undefined) {
+                        totalQuantity += parseFloat(quantityValue) || 0;
+                    }
+
+                    if (amountValue !== null && amountValue !== undefined) {
+                        totalAmount += parseFloat(amountValue) || 0;
+                    }
+                });
+            });
+        } else {
+            (this.records || []).forEach(record => {
+                const modifiedRecord = this.allModifiedRecords[record.ParameterId];
+                const quantityValue = modifiedRecord ? modifiedRecord.Target_Quantity_New__c : record.Target_Quantity_New__c;
+                const inrAmountValue = modifiedRecord ? modifiedRecord.Target_Amount_INR__c : record.Target_Amount_INR__c;
+                const usdAmountValue = modifiedRecord ? modifiedRecord.Target_Amount_USD__c : record.Target_Amount_USD__c;
+                const currencyType = modifiedRecord ?
+                    modifiedRecord.currencyType :
+                    (record.division === 'International' ? 'USD' : 'INR');
+
+                if (quantityValue !== null && quantityValue !== undefined) {
+                    totalQuantity += parseFloat(quantityValue) || 0;
+                }
+
+                if (currencyType === 'USD' && usdAmountValue !== null && usdAmountValue !== undefined) {
+                    totalAmount += parseFloat(usdAmountValue) || 0;
+                } else if (inrAmountValue !== null && inrAmountValue !== undefined) {
+                    totalAmount += parseFloat(inrAmountValue) || 0;
+                }
+            });
+        }
+
+        return { totalQuantity, totalAmount };
+    }
+
+    validateTotals() {
+        const { totalQuantity, totalAmount } = this.calculateTotals();
+        const targetQuantity = parseFloat(this.targetValFlag);
+        const targetAmount = parseFloat(this.targetAmountFlag);
+        const hasTargetQuantity = Number.isFinite(targetQuantity);
+        const hasTargetAmount = Number.isFinite(targetAmount);
+
+        let quantityValid = true;
+        if (hasTargetQuantity &&
+            !this.isEmployeeWiseTarget &&
+            this.parentTabLabel !== 'Employee_Wise_Account_Target__c' &&
+            totalQuantity > targetQuantity) {
+            this.showToast(
+                'Error',
+                `Assigned Qty (${totalQuantity.toFixed(2)}) cannot be greater than Target Qty (${targetQuantity})`,
+                'error'
+            );
+            quantityValid = false;
+        }
+
+        let amountValid = true;
+        if (hasTargetAmount && totalAmount > targetAmount) {
+            this.showToast(
+                'Error',
+                `Amount (${totalAmount.toFixed(2)}) cannot be greater than Target Amount (${targetAmount})`,
+                'error'
+            );
+            amountValid = false;
+        }
+
+        this.dispatchEvent(new CustomEvent('remainingvalue', {
+            detail: {
+                value: hasTargetQuantity ? targetQuantity - (this.isEmployeeWiseTarget ? 0 : totalQuantity) : 0,
+                amt: hasTargetAmount ? targetAmount - totalAmount : 0
+            }
+        }));
+
+        return quantityValid && amountValid;
+    }
+
+    handleIsDataModified() {
+        const { totalQuantity, totalAmount } = this.calculateTotals();
+        const targetQuantity = parseFloat(this.targetValFlag);
+        const targetAmount = parseFloat(this.targetAmountFlag);
+        const hasTargetQuantity = Number.isFinite(targetQuantity);
+        const hasTargetAmount = Number.isFinite(targetAmount);
+
+        this.newTargetValFlag = totalQuantity;
+        this.newTargetAmountFlag = totalAmount;
+
+        const targetdatatable = this.template.querySelector('.targetdatatable');
+        if (targetdatatable) {
+            if (this.isDataModified) {
+                targetdatatable.classList.add('slds-m-bottom_xx-large');
+            } else {
+                targetdatatable.classList.remove('slds-m-bottom_xx-large');
+            }
+        }
+
+        this.dispatchEvent(new CustomEvent('remainingvalue', {
+            detail: {
+                value: hasTargetQuantity ? targetQuantity - (this.isEmployeeWiseTarget ? 0 : totalQuantity) : 0,
+                amt: hasTargetAmount ? targetAmount - totalAmount : 0
+            }
+        }));
+    }
+
+    handleReset() {
+        this.isDataModified = false;
+        this.allModifiedRecords = {};
+
+        if (this.yearly) {
+            this.records.forEach(item => {
+                item.Target_Quantity_New__c = item.Target_Quantity__c;
+                item.Target_Amount_INR__c = item.division !== 'International' ? item.Target_Amount__c : null;
+                item.Target_Amount_USD__c = item.division === 'International' ? item.Target_Amount__c : null;
+                item.isDataModified = false;
+                item.className = '';
+
+                const id = item.ParameterId;
+                const editItems = this.template.querySelectorAll('[data-id="' + id + '"]');
+                if (editItems.length >= 1) {
+                    editItems[0].classList.remove('undo');
+                    editItems[0].classList.remove('slds-has-error');
+                    editItems[1].innerHTML = '';
+                }
+            });
+        } else if (this.monthly) {
+            this.records.forEach(item => {
+                item.childData.forEach(monthItem => {
+                    monthItem.Monthly_Target_Quantity__c = monthItem.Monthly_Target_Quantity__c_original;
+                    monthItem.Monthly_Target_Amount__c = monthItem.Monthly_Target_Amount__c_original;
+                    monthItem.isDataModified = false;
+                    monthItem.className = '';
+
+                    const id = monthItem.ParameterId;
+                    const editItems = this.template.querySelectorAll('[data-childid="' + id + '"]');
+                    if (editItems.length >= 1) {
+                        editItems[0].classList.remove('undo');
+                        editItems[0].classList.remove('slds-has-error');
+                        editItems[1].innerHTML = '';
+                    }
+                });
+            });
+        }
+
+        this.setDataAccordingToPagination();
+        this.handleIsDataModified();
+    }
+
+    getSavePayload() {
+        const modifiedRecords = Object.values(this.allModifiedRecords || {}).filter(record => record.isDataModified);
+
+        if (this.monthly) {
+            return modifiedRecords.map(record => {
+                return {
+                    Id: record.Id || record.ParameterId,
+                    ParameterId: record.ParameterId,
+                    Monthly_Target_Amount__c: record.Monthly_Target_Amount__c !== null && record.Monthly_Target_Amount__c !== undefined ?
+                        Number(record.Monthly_Target_Amount__c) :
+                        null,
+                    Monthly_Target_Quantity__c: record.Monthly_Target_Quantity__c !== null && record.Monthly_Target_Quantity__c !== undefined ?
+                        Number(record.Monthly_Target_Quantity__c) :
+                        null,
+                    division: record.division || null,
+                    ParameterCode: record.ParameterCode || null,
+                    ParameterDesc: record.ParameterDesc || null
+                };
+            });
+        }
+
+        return modifiedRecords.map(record => {
+            const isInternational = record.currencyType === 'USD';
+            const targetAmountINR = record.Target_Amount_INR__c !== null && record.Target_Amount_INR__c !== undefined ?
+                Number(record.Target_Amount_INR__c) :
+                null;
+            const targetAmountUSD = record.Target_Amount_USD__c !== null && record.Target_Amount_USD__c !== undefined ?
+                Number(record.Target_Amount_USD__c) :
+                null;
+            const targetQuantity = record.Target_Quantity_New__c !== null && record.Target_Quantity_New__c !== undefined ?
+                Number(record.Target_Quantity_New__c) :
+                null;
+
+            return {
+                Id: record.Id || null,
+                ParameterId: record.ParameterId,
+                Target_Amount__c: isInternational ? targetAmountUSD : targetAmountINR,
+                Target_Amount_INR__c: isInternational ? null : targetAmountINR,
+                Target_Amount_USD__c: isInternational ? targetAmountUSD : null,
+                Target_Quantity__c: targetQuantity,
+                division: record.division || 'Domestic',
+                currencyType: record.currencyType || 'INR',
+                ParameterCode: record.ParameterCode || null,
+                ParameterDesc: record.ParameterDesc || null
+            };
+        });
+    }
+
     async handleSave() {
         try {
             this.handleShowSpinner();
@@ -998,6 +1350,61 @@ export default class AssignTargetEmployeeWise extends LightningElement {
             }
         } catch (error) {
             console.error('❌ Save Error:', error);
+            this.showToast('Error', error.message || 'Failed to save data', 'error');
+        } finally {
+            console.groupEnd();
+            this.handleHideSpinner();
+        }
+    }
+
+    async handleSave() {
+        try {
+            this.handleShowSpinner();
+            console.group('handleSave');
+
+            if (!this.allModifiedRecords || Object.keys(this.allModifiedRecords).length === 0) {
+                this.showToast('Info', 'No changes to save', 'info');
+                this.handleHideSpinner();
+                return;
+            }
+
+            if (!this.validateTotals()) {
+                this.handleHideSpinner();
+                return;
+            }
+
+            const finalData = this.getSavePayload();
+            if (finalData.length === 0) {
+                this.showToast('Info', 'No changes to save', 'info');
+                this.handleHideSpinner();
+                return;
+            }
+
+            const result = await saveRecords({
+                data: JSON.stringify(finalData),
+                companyMasterId: this.compId,
+                fiscalYearId: this.fiscId,
+                employeeId: this.empId,
+                accId: this.accId,
+                type: this.parentTabLabel,
+                subType: this.childTabLabel
+            });
+
+            const parsedResult = JSON.parse(result);
+            if (parsedResult.status === 'Success') {
+                this.allModifiedRecords = {};
+                this.isDataModified = false;
+                this.showToast('Success', 'Data saved successfully', 'success');
+                setTimeout(() => this.getData(), 500);
+            } else {
+                const errorMessage =
+                    parsedResult.message ||
+                    (parsedResult.errorList || []).find(item => item.message)?.message ||
+                    'Save operation failed';
+                throw new Error(errorMessage);
+            }
+        } catch (error) {
+            console.error('Save Error:', error);
             this.showToast('Error', error.message || 'Failed to save data', 'error');
         } finally {
             console.groupEnd();
