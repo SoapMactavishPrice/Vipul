@@ -877,4 +877,63 @@ public class TargetModule_Test {
         Test.stopTest();
 
     }
+
+    @isTest
+    static void testGetMonthlyEmployeeWiseAccountTargetPreservesNullMonthlyValues() {
+        Date fiscalStartDate = Date.today().toStartOfMonth().addMonths(1);
+        Fiscal_Year__c fy = new Fiscal_Year__c(
+            Name = 'FY Null Monthly',
+            FY_Start_Date__c = fiscalStartDate,
+            FY_End_Date__c = fiscalStartDate.addMonths(12).addDays(-1)
+        );
+        insert fy;
+
+        Account acc = new Account(Name = 'Null Monthly Account');
+        insert acc;
+
+        Employee_Wise_Account_Target__c target = new Employee_Wise_Account_Target__c(
+            Account__c = acc.Id,
+            Employee__c = UserInfo.getUserId(),
+            Fiscal_Year__c = fy.Id,
+            Target_Quantity__c = 120,
+            Target_Amount__c = 1200
+        );
+        insert target;
+
+        List<Employee_Wise_Account_Target_Line_Item__c> lineItems = [
+            SELECT Id, Monthly_Target_Quantity__c, Monthly_Target_Amount__c
+            FROM Employee_Wise_Account_Target_Line_Item__c
+            WHERE Employee_Wise_Account_Target__c = :target.Id
+        ];
+
+        for (Employee_Wise_Account_Target_Line_Item__c lineItem : lineItems) {
+            lineItem.Monthly_Target_Quantity__c = null;
+            lineItem.Monthly_Target_Amount__c = null;
+        }
+        update lineItems;
+
+        Test.startTest();
+        String result = TargetModule.getMonthly(fy.Id, UserInfo.getUserId(), 'Employee_Wise_Account_Target__c', null, null);
+        Test.stopTest();
+
+        Map<String, Object> parsedResult = (Map<String, Object>) JSON.deserializeUntyped(result);
+        List<Object> parameterData = (List<Object>) parsedResult.get('parameterData');
+
+        System.assert(parameterData != null && !parameterData.isEmpty(),
+            'Monthly data should be returned for the account target.');
+
+        Map<String, Object> firstRecord = (Map<String, Object>) parameterData[0];
+        List<Object> childData = (List<Object>) firstRecord.get('childData');
+
+        System.assert(childData != null && !childData.isEmpty(),
+            'Monthly child rows should be present for the account target.');
+
+        for (Object childObj : childData) {
+            Map<String, Object> childRow = (Map<String, Object>) childObj;
+            System.assertEquals(null, childRow.get('Monthly_Target_Quantity__c'),
+                'Null monthly quantity should stay blank in the API response.');
+            System.assertEquals(null, childRow.get('Monthly_Target_Amount__c'),
+                'Null monthly amount should stay blank in the API response.');
+        }
+    }
 }

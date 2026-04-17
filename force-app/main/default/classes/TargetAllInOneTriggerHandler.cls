@@ -91,28 +91,28 @@ public with sharing class TargetAllInOneTriggerHandler {
         System.debug('updateMonthlyTargetEntries:>>');
         Set < Id > objIds = new Set < Id > ();
         for (sObject obj: newRecords) {
-            Decimal newTargetQuantity = getDecimalValue(obj, 'Target_Quantity__c');
-            Decimal oldTargetQuantity = getDecimalValue(oldMap.get(obj.Id), 'Target_Quantity__c');
-            Decimal newTargetAmount = getDecimalValue(obj, 'Target_Amount__c');
-            Decimal oldTargetAmount = getDecimalValue(oldMap.get(obj.Id), 'Target_Amount__c');
+            Decimal newTargetQuantity = getNullableDecimalValue(obj, 'Target_Quantity__c');
+            Decimal oldTargetQuantity = getNullableDecimalValue(oldMap.get(obj.Id), 'Target_Quantity__c');
+            Decimal newTargetAmount = getNullableDecimalValue(obj, 'Target_Amount__c');
+            Decimal oldTargetAmount = getNullableDecimalValue(oldMap.get(obj.Id), 'Target_Amount__c');
 
             if (objType == 'EmployeeWiseTarget') {
-            /*    if (obj.get('Target_Quantity__c') != oldMap.get(obj.Id).get('Target_Quantity__c') &&
+             /*    if (obj.get('Target_Quantity__c') != oldMap.get(obj.Id).get('Target_Quantity__c') &&
                     obj.get('Target_Quantity__c') != obj.get('Target_Quantity_Monthly__c')) {
                     objIds.add((Id) obj.get('Id'));
                 }        */
-                if (newTargetAmount != oldTargetAmount &&
-                    newTargetAmount != getDecimalValue(obj, 'Target_Amount_Monthly_Rollup__c')) {
+                if (!areDecimalValuesEqual(newTargetAmount, oldTargetAmount) &&
+                    !areDecimalValuesEqual(newTargetAmount, getNullableDecimalValue(obj, 'Target_Amount_Monthly_Rollup__c'))) {
                     objIds.add((Id) obj.get('Id'));
                 }
             }
             if (objType == 'EmployeeWiseProductTarget' || objType == 'EmployeeWiseAccountTarget' || objType == 'AccountWiseProductTarget' ) {
-                if (newTargetQuantity != oldTargetQuantity &&
-                    newTargetQuantity != getDecimalValue(obj, 'Monthly_Target_Quantity__c')) {
+                if (!areDecimalValuesEqual(newTargetQuantity, oldTargetQuantity) &&
+                    !areDecimalValuesEqual(newTargetQuantity, getNullableDecimalValue(obj, 'Monthly_Target_Quantity__c'))) {
                     objIds.add((Id) obj.get('Id'));
                 }
-                if (newTargetAmount != oldTargetAmount &&
-                    newTargetAmount != getDecimalValue(obj, 'Target_Amount_Monthly_Rollup__c')) {
+                if (!areDecimalValuesEqual(newTargetAmount, oldTargetAmount) &&
+                    !areDecimalValuesEqual(newTargetAmount, getNullableDecimalValue(obj, 'Target_Amount_Monthly_Rollup__c'))) {
                     objIds.add((Id) obj.get('Id'));
                 }
             }
@@ -178,39 +178,53 @@ public with sharing class TargetAllInOneTriggerHandler {
             List < sObject > objLineItemsForUpdate2 = new List < sObject > ();
 
             for (sObject obj: objMap.values()) {
-                Decimal newTargetQuantity = getDecimalValue(obj, 'Target_Quantity__c');
-                Decimal oldTargetQuantity = getDecimalValue(oldMap.get(obj.Id), 'Target_Quantity__c');
-                Decimal newTargetAmount = getDecimalValue(obj, 'Target_Amount__c');
-                Decimal oldTargetAmount = getDecimalValue(oldMap.get(obj.Id), 'Target_Amount__c');
+                Decimal newTargetQuantity = getNullableDecimalValue(obj, 'Target_Quantity__c');
+                Decimal oldTargetQuantity = getNullableDecimalValue(oldMap.get(obj.Id), 'Target_Quantity__c');
+                Decimal newTargetAmount = getNullableDecimalValue(obj, 'Target_Amount__c');
+                Decimal oldTargetAmount = getNullableDecimalValue(oldMap.get(obj.Id), 'Target_Amount__c');
 
-                if (newTargetQuantity != oldTargetQuantity) {
+                if (!areDecimalValuesEqual(newTargetQuantity, oldTargetQuantity)) {
                     List < sObject > childList = getChildLineItems(obj, sObjectTypeName);
                     if (childList.isEmpty()) {
                         addTargetFieldError(newMap, obj.Id, sObjectTypeName, 'Target_Quantity__c',
                             'No child items available to proceed with updating target quantity');
                     } else {
-                        Decimal diff = newTargetQuantity - oldTargetQuantity;
-                        Decimal diffPerMonth = diff / childList.size();
+                        if (shouldClearMonthlyValue(newTargetQuantity)) {
+                            for (sObject childObj: childList) {
+                                childObj.put('Monthly_Target_Quantity__c', null);
+                                objLineItemsForUpdate.add(childObj);
+                            }
+                        } else {
+                            Decimal diff = newTargetQuantity - (oldTargetQuantity == null ? 0 : oldTargetQuantity);
+                            Decimal diffPerMonth = diff / childList.size();
 
-                        for (sObject childObj: childList) {
-                            childObj.put('Monthly_Target_Quantity__c', getDecimalValue(childObj, 'Monthly_Target_Quantity__c') + diffPerMonth);
-                            objLineItemsForUpdate.add(childObj);
+                            for (sObject childObj: childList) {
+                                childObj.put('Monthly_Target_Quantity__c', getDecimalValue(childObj, 'Monthly_Target_Quantity__c') + diffPerMonth);
+                                objLineItemsForUpdate.add(childObj);
+                            }
                         }
                     }
                 }
 
-                if (newTargetAmount != oldTargetAmount) {
+                if (!areDecimalValuesEqual(newTargetAmount, oldTargetAmount)) {
                     List < sObject > childList = getChildLineItems(obj, sObjectTypeName);
                     if (childList.isEmpty()) {
                         addTargetFieldError(newMap, obj.Id, sObjectTypeName, 'Target_Amount__c',
                             'No child items available to proceed with updating target amount');
                     } else {
-                        Decimal diff = newTargetAmount - oldTargetAmount;
-                        Decimal diffPerMonth = diff / childList.size();
+                        if (shouldClearMonthlyValue(newTargetAmount)) {
+                            for (sObject childObj: childList) {
+                                childObj.put('Monthly_Target_Amount__c', null);
+                                objLineItemsForUpdate2.add(childObj);
+                            }
+                        } else {
+                            Decimal diff = newTargetAmount - (oldTargetAmount == null ? 0 : oldTargetAmount);
+                            Decimal diffPerMonth = diff / childList.size();
 
-                        for (sObject childObj: childList) {
-                            childObj.put('Monthly_Target_Amount__c', getDecimalValue(childObj, 'Monthly_Target_Amount__c') + diffPerMonth);
-                            objLineItemsForUpdate2.add(childObj);
+                            for (sObject childObj: childList) {
+                                childObj.put('Monthly_Target_Amount__c', getDecimalValue(childObj, 'Monthly_Target_Amount__c') + diffPerMonth);
+                                objLineItemsForUpdate2.add(childObj);
+                            }
                         }
                     }
                 }
@@ -238,6 +252,31 @@ public with sharing class TargetAllInOneTriggerHandler {
         }
 
         return (Decimal) fieldValue;
+    }
+
+    private static Decimal getNullableDecimalValue(sObject record, String fieldName) {
+        if (record == null) {
+            return null;
+        }
+
+        Object fieldValue = record.get(fieldName);
+        return fieldValue == null ? null : (Decimal) fieldValue;
+    }
+
+    private static Boolean areDecimalValuesEqual(Decimal firstValue, Decimal secondValue) {
+        if (firstValue == null && secondValue == null) {
+            return true;
+        }
+
+        if (firstValue == null || secondValue == null) {
+            return false;
+        }
+
+        return firstValue == secondValue;
+    }
+
+    private static Boolean shouldClearMonthlyValue(Decimal value) {
+        return value == null || value == 0;
     }
 
     private static List<sObject> getChildLineItems(sObject masterRecord, String sObjectTypeName) {

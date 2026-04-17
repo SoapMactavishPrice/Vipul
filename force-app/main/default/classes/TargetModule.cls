@@ -648,7 +648,7 @@ public with sharing class TargetModule {
                         for (Employee_Wise_Target_Line_Item__c childRec: rec.Employee_Wise_Target_Line_Items__r) {
                             Map<String, Object> childMap = new Map<String, Object>();
                             childMap.put('ParameterId', childRec.Id);
-                            childMap.put('Monthly_Target_Amount__c', childRec.Monthly_Target_Amount__c.setScale(2));
+                            childMap.put('Monthly_Target_Amount__c', scaleDecimalOrNull(childRec.Monthly_Target_Amount__c));
                             if (childRec.Start_Date__c > System.today()) {
                                 childMap.put('targetAmountEdit', true);
                             } else if (childRec.Start_Date__c <= System.today() && System.today() <= childRec.End_Date__c) {
@@ -677,8 +677,8 @@ public with sharing class TargetModule {
                         for (Employee_Wise_Product_Target_Line_Item__c childRec: rec.Employee_Wise_Product_Target_Line_Items__r) {
                             Map<String, Object> childMap = new Map<String, Object>();
                             childMap.put('ParameterId', childRec.Id);
-                            childMap.put('Monthly_Target_Quantity__c', childRec.Monthly_Target_Quantity__c.setScale(2));
-                            childMap.put('Monthly_Target_Amount__c', childRec.Monthly_Target_Amount__c.setScale(2));
+                            childMap.put('Monthly_Target_Quantity__c', scaleDecimalOrNull(childRec.Monthly_Target_Quantity__c));
+                            childMap.put('Monthly_Target_Amount__c', scaleDecimalOrNull(childRec.Monthly_Target_Amount__c));
                             if (childRec.Start_Date__c > System.today()) {
                                 childMap.put('targetAmountEdit', true);
                             } else if (childRec.Start_Date__c <= System.today() && System.today() <= childRec.End_Date__c) {
@@ -704,9 +704,8 @@ public with sharing class TargetModule {
                         for (Employee_Wise_Account_Target_Line_Item__c childRec: rec.Employee_Wise_Account_Target_Line_Item__r) {
                             Map<String, Object> childMap = new Map<String, Object>();
                             childMap.put('ParameterId', childRec.Id);
-                            Decimal monthlyQty = childRec.Monthly_Target_Quantity__c != null ? childRec.Monthly_Target_Quantity__c.setScale(2) : 0.00;
-                            childMap.put('Monthly_Target_Quantity__c', monthlyQty);
-                            childMap.put('Monthly_Target_Amount__c', childRec.Monthly_Target_Amount__c.setScale(2));
+                            childMap.put('Monthly_Target_Quantity__c', scaleDecimalOrNull(childRec.Monthly_Target_Quantity__c));
+                            childMap.put('Monthly_Target_Amount__c', scaleDecimalOrNull(childRec.Monthly_Target_Amount__c));
                             if (childRec.Start_Date__c > System.today()) {
                                 childMap.put('targetAmountEdit', true);
                             } else if (childRec.Start_Date__c <= System.today() && System.today() <= childRec.End_Date__c) {
@@ -734,9 +733,8 @@ public with sharing class TargetModule {
                         for (Account_Wise_Product_Target_Line_Item__c childRec: rec.Account_Wise_Product_Target_Line_Item__r) {
                             Map<String, Object> childMap = new Map<String, Object>();
                             childMap.put('ParameterId', childRec.Id);
-                            Decimal monthlyQty = childRec.Monthly_Target_Quantity__c != null ? childRec.Monthly_Target_Quantity__c.setScale(2) : 0.00;
-                            childMap.put('Monthly_Target_Quantity__c', monthlyQty);
-                            childMap.put('Monthly_Target_Amount__c', childRec.Monthly_Target_Amount__c.setScale(2));
+                            childMap.put('Monthly_Target_Quantity__c', scaleDecimalOrNull(childRec.Monthly_Target_Quantity__c));
+                            childMap.put('Monthly_Target_Amount__c', scaleDecimalOrNull(childRec.Monthly_Target_Amount__c));
                             if (childRec.Start_Date__c > System.today()) {
                                 childMap.put('targetAmountEdit', true);
                             } else if (childRec.Start_Date__c <= System.today() && System.today() <= childRec.End_Date__c) {
@@ -982,6 +980,10 @@ public with sharing class TargetModule {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static Decimal scaleDecimalOrNull(Decimal value) {
+        return value == null ? null : value.setScale(2);
     }
     
     

@@ -196,6 +196,75 @@ public class TargetAllInOneTriggerHandlerTest {
             FROM Employee_Wise_Account_Target__c
             WHERE Id = :target.Id
         ];
+
+        System.assertEquals(null, updatedTarget.Target_Quantity__c,
+            'Yearly quantity should stay blank after update.');
+        System.assertEquals(null, updatedTarget.Target_Amount__c,
+            'Yearly amount should stay blank after update.');
+        System.assert(updatedTarget.Employee_Wise_Account_Target_Line_Item__r.size() > 0,
+            'Monthly line items should exist for the target.');
+
+        for (Employee_Wise_Account_Target_Line_Item__c lineItem : updatedTarget.Employee_Wise_Account_Target_Line_Item__r) {
+            System.assertEquals(null, lineItem.Monthly_Target_Quantity__c,
+                'Clearing yearly quantity should blank the future monthly quantity values.');
+            System.assertEquals(null, lineItem.Monthly_Target_Amount__c,
+                'Clearing yearly amount should blank the future monthly amount values.');
+        }
+    }
+
+    @isTest
+    static void updateEmployeeWiseAccountTargetClearsMonthlyTargetsWhenYearlyIsZero() {
+        Date fiscalStartDate = Date.today().toStartOfMonth().addMonths(1);
+        Fiscal_Year__c fy = new Fiscal_Year__c(
+            Name = 'FY Zero Future',
+            FY_Start_Date__c = fiscalStartDate,
+            FY_End_Date__c = fiscalStartDate.addMonths(12).addDays(-1)
+        );
+        insert fy;
+
+        Account acc = new Account(Name = 'Zero Future Account');
+        insert acc;
+
+        Employee_Wise_Account_Target__c target = new Employee_Wise_Account_Target__c(
+            Account__c = acc.Id,
+            Employee__c = UserInfo.getUserId(),
+            Fiscal_Year__c = fy.Id,
+            Target_Quantity__c = 120,
+            Target_Amount__c = 1200
+        );
+        insert target;
+
+        target.Target_Quantity__c = 0;
+        target.Target_Amount__c = 0;
+
+        Test.startTest();
+        update target;
+        Test.stopTest();
+
+        Employee_Wise_Account_Target__c updatedTarget = [
+            SELECT Id, Target_Quantity__c, Target_Amount__c,
+                (
+                    SELECT Id, Monthly_Target_Quantity__c, Monthly_Target_Amount__c
+                    FROM Employee_Wise_Account_Target_Line_Item__r
+                    ORDER BY Start_Date__c
+                )
+            FROM Employee_Wise_Account_Target__c
+            WHERE Id = :target.Id
+        ];
+
+        System.assertEquals(0, updatedTarget.Target_Quantity__c,
+            'Yearly quantity should stay zero after update.');
+        System.assertEquals(0, updatedTarget.Target_Amount__c,
+            'Yearly amount should stay zero after update.');
+        System.assert(updatedTarget.Employee_Wise_Account_Target_Line_Item__r.size() > 0,
+            'Monthly line items should exist for the target.');
+
+        for (Employee_Wise_Account_Target_Line_Item__c lineItem : updatedTarget.Employee_Wise_Account_Target_Line_Item__r) {
+            System.assertEquals(null, lineItem.Monthly_Target_Quantity__c,
+                'Zero yearly quantity should clear the future monthly quantity values.');
+            System.assertEquals(null, lineItem.Monthly_Target_Amount__c,
+                'Zero yearly amount should clear the future monthly amount values.');
+        }
     }
 
     @isTest
