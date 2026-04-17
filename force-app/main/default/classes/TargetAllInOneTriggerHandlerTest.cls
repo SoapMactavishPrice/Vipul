@@ -2,12 +2,7 @@
 public class TargetAllInOneTriggerHandlerTest {
     @isTest
     static void testRollupTargetAmountEmployeeWiseTarget() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2025',
-            FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2025');
 
         Employee_Wise_Target__c target = new Employee_Wise_Target__c(
             Employee__c = UserInfo.getUserId(),
@@ -33,12 +28,7 @@ public class TargetAllInOneTriggerHandlerTest {
 
     @isTest
     static void testRollupTargetAmountEmployeeWiseProductTarget() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-            FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Product2 prod = new Product2();
         prod.Name = 'VOXCO ZINC PHOSPHATE';
@@ -70,12 +60,7 @@ public class TargetAllInOneTriggerHandlerTest {
 
     @isTest
     static void createMonthlyTargetEntriesTest() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-            FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Account acc = new Account(Name = 'Account');
         insert acc;
@@ -105,12 +90,7 @@ public class TargetAllInOneTriggerHandlerTest {
 
     @isTest
     static void updateMonthlyTargetEntriesTest() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-            FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Employee_Wise_Target__c target = new Employee_Wise_Target__c(
             Employee__c = UserInfo.getUserId(),
@@ -137,12 +117,7 @@ public class TargetAllInOneTriggerHandlerTest {
 
     @isTest
     static void updateMonthlyAccountTargetEntriesTest() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-            FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Account acc = new Account(Name = 'Account');
         insert acc;
@@ -172,17 +147,64 @@ public class TargetAllInOneTriggerHandlerTest {
     }
 
     @isTest
+    static void updateEmployeeWiseAccountTargetAllowsNullTargetsOnUpdate() {
+        Date fiscalStartDate = Date.today().toStartOfMonth().addMonths(1);
+        Fiscal_Year__c fy = new Fiscal_Year__c(
+            Name = 'FY Future',
+            FY_Start_Date__c = fiscalStartDate,
+            FY_End_Date__c = fiscalStartDate.addMonths(12).addDays(-1)
+        );
+        insert fy;
+
+        Account acc = new Account(Name = 'Future Account');
+        insert acc;
+
+        Employee_Wise_Account_Target__c target = new Employee_Wise_Account_Target__c(
+            Account__c = acc.Id,
+            Employee__c = UserInfo.getUserId(),
+            Fiscal_Year__c = fy.Id,
+            Target_Quantity__c = 120,
+            Target_Amount__c = 1200
+        );
+        insert target;
+
+        Employee_Wise_Account_Target__c insertedTarget = [
+            SELECT Id, Target_Quantity__c, Target_Amount__c,
+                (
+                    SELECT Id, Monthly_Target_Quantity__c, Monthly_Target_Amount__c
+                    FROM Employee_Wise_Account_Target_Line_Item__r
+                    ORDER BY Start_Date__c
+                )
+            FROM Employee_Wise_Account_Target__c
+            WHERE Id = :target.Id
+        ];
+
+        target.Target_Quantity__c = null;
+        target.Target_Amount__c = null;
+
+        Test.startTest();
+        update target;
+        Test.stopTest();
+
+        Employee_Wise_Account_Target__c updatedTarget = [
+            SELECT Id, Target_Quantity__c, Target_Amount__c,
+                (
+                    SELECT Id, Monthly_Target_Quantity__c, Monthly_Target_Amount__c
+                    FROM Employee_Wise_Account_Target_Line_Item__r
+                    ORDER BY Start_Date__c
+                )
+            FROM Employee_Wise_Account_Target__c
+            WHERE Id = :target.Id
+        ];
+    }
+
+    @isTest
     static void shareRecordWithUserTest() {
         List<Employee_Wise_Target__c> employeeTargets = new List<Employee_Wise_Target__c>();
         List<Employee_Wise_Product_Target__c> productTargets = new List<Employee_Wise_Product_Target__c>();
         List<Employee_Wise_Account_Target__c> accountTargets = new List<Employee_Wise_Account_Target__c>();
 
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-            FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Product2 prod = new Product2();
         prod.Name = 'VOXCO ZINC PHOSPHATE';
@@ -234,12 +256,7 @@ public class TargetAllInOneTriggerHandlerTest {
 
     @isTest
     static void testAccountWiseProductTargetTrigger() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-           FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Account_Wise_Product_Target__c awpt = new Account_Wise_Product_Target__c(
             Employee__c = UserInfo.getUserId(),
@@ -260,12 +277,7 @@ public class TargetAllInOneTriggerHandlerTest {
 
     @isTest
     static void testAccountWiseProductTargetLineItemTrigger() {
-        Fiscal_Year__c fy = new Fiscal_Year__c(
-            Name = 'FY 2024',
-           FY_Start_Date__c = Date.newInstance(2025, 4, 1),
-            FY_End_Date__c = Date.newInstance(2026, 3, 31)
-        );
-        insert fy;
+        Fiscal_Year__c fy = createFutureFiscalYear('FY 2024');
 
         Account_Wise_Product_Target__c awpt = new Account_Wise_Product_Target__c(
             Employee__c = UserInfo.getUserId(),
@@ -282,5 +294,16 @@ public class TargetAllInOneTriggerHandlerTest {
         Test.startTest();
         insert awptLineItem;
         Test.stopTest();
+    }
+
+    private static Fiscal_Year__c createFutureFiscalYear(String name) {
+        Date fiscalStartDate = Date.today().toStartOfMonth().addMonths(1);
+        Fiscal_Year__c fy = new Fiscal_Year__c(
+            Name = name,
+            FY_Start_Date__c = fiscalStartDate,
+            FY_End_Date__c = fiscalStartDate.addMonths(12).addDays(-1)
+        );
+        insert fy;
+        return fy;
     }
 }

@@ -89,25 +89,30 @@ public with sharing class TargetAllInOneTriggerHandler {
 
     public static void updateMonthlyTargetEntries(List < sObject > newRecords, Map < Id, sObject > oldMap, Map < Id, sObject > newMap, String objType) {
         System.debug('updateMonthlyTargetEntries:>>');
-        Set < Id > objIds = new Set < Id > ();	
+        Set < Id > objIds = new Set < Id > ();
         for (sObject obj: newRecords) {
+            Decimal newTargetQuantity = getDecimalValue(obj, 'Target_Quantity__c');
+            Decimal oldTargetQuantity = getDecimalValue(oldMap.get(obj.Id), 'Target_Quantity__c');
+            Decimal newTargetAmount = getDecimalValue(obj, 'Target_Amount__c');
+            Decimal oldTargetAmount = getDecimalValue(oldMap.get(obj.Id), 'Target_Amount__c');
+
             if (objType == 'EmployeeWiseTarget') {
             /*    if (obj.get('Target_Quantity__c') != oldMap.get(obj.Id).get('Target_Quantity__c') &&
-                    obj.get('Target_Quantity__c') != obj.get('Target_Quantity_Monthly__c')) {	
-                    objIds.add((Id) obj.get('Id'));		
-                }		*/
-                if (obj.get('Target_Amount__c') != oldMap.get(obj.Id).get('Target_Amount__c') &&
-                    obj.get('Target_Amount__c') != obj.get('Target_Amount_Monthly_Rollup__c')) {
+                    obj.get('Target_Quantity__c') != obj.get('Target_Quantity_Monthly__c')) {
+                    objIds.add((Id) obj.get('Id'));
+                }        */
+                if (newTargetAmount != oldTargetAmount &&
+                    newTargetAmount != getDecimalValue(obj, 'Target_Amount_Monthly_Rollup__c')) {
                     objIds.add((Id) obj.get('Id'));
                 }
             }
             if (objType == 'EmployeeWiseProductTarget' || objType == 'EmployeeWiseAccountTarget' || objType == 'AccountWiseProductTarget' ) {
-                if (obj.get('Target_Quantity__c') != oldMap.get(obj.Id).get('Target_Quantity__c') &&
-                    obj.get('Target_Quantity__c') != obj.get('Monthly_Target_Quantity__c')) {
+                if (newTargetQuantity != oldTargetQuantity &&
+                    newTargetQuantity != getDecimalValue(obj, 'Monthly_Target_Quantity__c')) {
                     objIds.add((Id) obj.get('Id'));
                 }
-                if (obj.get('Target_Amount__c') != oldMap.get(obj.Id).get('Target_Amount__c') &&
-                    obj.get('Target_Amount__c') != obj.get('Target_Amount_Monthly_Rollup__c')) {
+                if (newTargetAmount != oldTargetAmount &&
+                    newTargetAmount != getDecimalValue(obj, 'Target_Amount_Monthly_Rollup__c')) {
                     objIds.add((Id) obj.get('Id'));
                 }
             }
@@ -119,8 +124,9 @@ public with sharing class TargetAllInOneTriggerHandler {
             Date currentDate = System.today().toStartOfMonth();
 
             Map < Id, sObject > objMap;
+            String sObjectTypeName = String.valueOf(newRecords[0].getSObjectType());
 
-            switch on String.valueOf(newRecords[0].getSObjectType()) {
+            switch on sObjectTypeName {
                 when 'Employee_Wise_Target__c' {
                     objMap = new Map < Id, Employee_Wise_Target__c > (
                         [SELECT Id, Target_Quantity__c, Target_Amount__c,
@@ -172,94 +178,40 @@ public with sharing class TargetAllInOneTriggerHandler {
             List < sObject > objLineItemsForUpdate2 = new List < sObject > ();
 
             for (sObject obj: objMap.values()) {
-                if (obj.get('Target_Quantity__c') != oldMap.get(obj.Id).get('Target_Quantity__c')) {
+                Decimal newTargetQuantity = getDecimalValue(obj, 'Target_Quantity__c');
+                Decimal oldTargetQuantity = getDecimalValue(oldMap.get(obj.Id), 'Target_Quantity__c');
+                Decimal newTargetAmount = getDecimalValue(obj, 'Target_Amount__c');
+                Decimal oldTargetAmount = getDecimalValue(oldMap.get(obj.Id), 'Target_Amount__c');
 
-                    List < sObject > childList;
-                    String errorString = 'No child items available to proceed with updating target Amount';
-                    switch on String.valueOf(newRecords[0].getSObjectType()) {
-                        when 'Employee_Wise_Target__c' {
-                            System.debug(JSON.serialize(objMap.get(obj.Id)));
-                            Employee_Wise_Target__c masterObj = (Employee_Wise_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Employee_Wise_Target_Line_Items__r;
-                            if (childList.size() == 0) {
-                                ((Employee_Wise_Target__c) newMap.get(obj.Id)).Target_Quantity__c.addError(errorString);
-                            }
-                        }
+                if (newTargetQuantity != oldTargetQuantity) {
+                    List < sObject > childList = getChildLineItems(obj, sObjectTypeName);
+                    if (childList.isEmpty()) {
+                        addTargetFieldError(newMap, obj.Id, sObjectTypeName, 'Target_Quantity__c',
+                            'No child items available to proceed with updating target quantity');
+                    } else {
+                        Decimal diff = newTargetQuantity - oldTargetQuantity;
+                        Decimal diffPerMonth = diff / childList.size();
 
-                        when 'Employee_Wise_Product_Target__c' {
-                            Employee_Wise_Product_Target__c masterObj = (Employee_Wise_Product_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Employee_Wise_Product_Target_Line_Items__r;
-                            if (childList.size() == 0) {
-                                ((Employee_Wise_Product_Target__c) newMap.get(obj.Id)).Target_Quantity__c.addError(errorString);
-                            }
+                        for (sObject childObj: childList) {
+                            childObj.put('Monthly_Target_Quantity__c', getDecimalValue(childObj, 'Monthly_Target_Quantity__c') + diffPerMonth);
+                            objLineItemsForUpdate.add(childObj);
                         }
-                        when 'Employee_Wise_Account_Target__c' {
-                            Employee_Wise_Account_Target__c masterObj = (Employee_Wise_Account_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Employee_Wise_Account_Target_Line_Item__r;
-                            if (childList.size() == 0) {
-                                ((Employee_Wise_Account_Target__c) newMap.get(obj.Id)).Target_Quantity__c.addError(errorString);
-                            }
-                        }
-                         when 'Account_Wise_Product_Target__c' {
-                            Account_Wise_Product_Target__c masterObj = (Account_Wise_Product_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Account_Wise_Product_Target_Line_Item__r;
-                            if (childList.size() == 0) {
-                                ((Account_Wise_Product_Target__c) newMap.get(obj.Id)).Target_Quantity__c.addError(errorString);
-                            }
-                        }
-                    }
-
-                    Decimal diff = (Decimal) obj.get('Target_Quantity__c') - (Decimal) oldMap.get(obj.Id).get('Target_Quantity__c');
-                    Decimal diffPerMonth = diff / childList.size();
-
-                    for (sObject childObj: childList) {
-                        childObj.put('Monthly_Target_Quantity__c', (Decimal) childObj.get('Monthly_Target_Quantity__c') + diffPerMonth);
-                        objLineItemsForUpdate.add(childObj);
                     }
                 }
-                if (obj.get('Target_Amount__c') != oldMap.get(obj.Id).get('Target_Amount__c')) {
 
-                    List < sObject > childList;
-                    String errorString = 'No child items available to proceed with updating target Amount';
-                    switch on String.valueOf(newRecords[0].getSObjectType()) {
-                        when 'Employee_Wise_Target__c' {
-                            System.debug(JSON.serialize(objMap.get(obj.Id)));
-                            Employee_Wise_Target__c masterObj = (Employee_Wise_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Employee_Wise_Target_Line_Items__r;
-                            if (childList.size() == 0) {
-                                ((Employee_Wise_Target__c) newMap.get(obj.Id)).Target_Amount__c.addError(errorString);
-                            }
-                        }
+                if (newTargetAmount != oldTargetAmount) {
+                    List < sObject > childList = getChildLineItems(obj, sObjectTypeName);
+                    if (childList.isEmpty()) {
+                        addTargetFieldError(newMap, obj.Id, sObjectTypeName, 'Target_Amount__c',
+                            'No child items available to proceed with updating target amount');
+                    } else {
+                        Decimal diff = newTargetAmount - oldTargetAmount;
+                        Decimal diffPerMonth = diff / childList.size();
 
-                        when 'Employee_Wise_Product_Target__c' {
-                            Employee_Wise_Product_Target__c masterObj = (Employee_Wise_Product_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Employee_Wise_Product_Target_Line_Items__r;
-                            if (childList.size() == 0) {
-                                ((Employee_Wise_Product_Target__c) newMap.get(obj.Id)).Target_Amount__c.addError(errorString);
-                            }
+                        for (sObject childObj: childList) {
+                            childObj.put('Monthly_Target_Amount__c', getDecimalValue(childObj, 'Monthly_Target_Amount__c') + diffPerMonth);
+                            objLineItemsForUpdate2.add(childObj);
                         }
-                        when 'Employee_Wise_Account_Target__c' {
-                            Employee_Wise_Account_Target__c masterObj = (Employee_Wise_Account_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Employee_Wise_Account_Target_Line_Item__r;
-                            if (childList.size() == 0) {
-                                ((Employee_Wise_Account_Target__c) newMap.get(obj.Id)).Target_Amount__c.addError(errorString);
-                            }
-                        }
-                         when 'Account_Wise_Product_Target__c' {
-                            Account_Wise_Product_Target__c masterObj = (Account_Wise_Product_Target__c) objMap.get(obj.Id);
-                            childList = masterObj.Account_Wise_Product_Target_Line_Item__r;
-                            if (childList.size() == 0) {
-                                ((Account_Wise_Product_Target__c) newMap.get(obj.Id)).Target_Amount__c.addError(errorString);
-                            }
-                        }
-                    }
-
-                    Decimal diff = (Decimal) obj.get('Target_Amount__c') - (Decimal) oldMap.get(obj.Id).get('Target_Amount__c');
-                    Decimal diffPerMonth = diff / childList.size();
-
-                    for (sObject childObj: childList) {
-                        childObj.put('Monthly_Target_Amount__c', (Decimal) childObj.get('Monthly_Target_Amount__c') + diffPerMonth);
-                        objLineItemsForUpdate2.add(childObj);
                     }
                 }
             }
@@ -268,9 +220,89 @@ public with sharing class TargetAllInOneTriggerHandler {
                 System.debug('objLineItemsForUpdate:>> ' + objLineItemsForUpdate.size());
                 update objLineItemsForUpdate;
             }
-	            if (objLineItemsForUpdate2.size() > 0) {
+            if (objLineItemsForUpdate2.size() > 0) {
                 System.debug('objLineItemsForUpdate2:>> ' + objLineItemsForUpdate2.size());
                 update objLineItemsForUpdate2;
+            }
+        }
+    }
+
+    private static Decimal getDecimalValue(sObject record, String fieldName) {
+        if (record == null) {
+            return 0;
+        }
+
+        Object fieldValue = record.get(fieldName);
+        if (fieldValue == null) {
+            return 0;
+        }
+
+        return (Decimal) fieldValue;
+    }
+
+    private static List<sObject> getChildLineItems(sObject masterRecord, String sObjectTypeName) {
+        List<sObject> childList = new List<sObject>();
+
+        switch on sObjectTypeName {
+            when 'Employee_Wise_Target__c' {
+                System.debug(JSON.serialize(masterRecord));
+                Employee_Wise_Target__c masterObj = (Employee_Wise_Target__c) masterRecord;
+                if (masterObj.Employee_Wise_Target_Line_Items__r != null) {
+                    childList.addAll(masterObj.Employee_Wise_Target_Line_Items__r);
+                }
+            }
+            when 'Employee_Wise_Product_Target__c' {
+                Employee_Wise_Product_Target__c masterObj = (Employee_Wise_Product_Target__c) masterRecord;
+                if (masterObj.Employee_Wise_Product_Target_Line_Items__r != null) {
+                    childList.addAll(masterObj.Employee_Wise_Product_Target_Line_Items__r);
+                }
+            }
+            when 'Employee_Wise_Account_Target__c' {
+                Employee_Wise_Account_Target__c masterObj = (Employee_Wise_Account_Target__c) masterRecord;
+                if (masterObj.Employee_Wise_Account_Target_Line_Item__r != null) {
+                    childList.addAll(masterObj.Employee_Wise_Account_Target_Line_Item__r);
+                }
+            }
+            when 'Account_Wise_Product_Target__c' {
+                Account_Wise_Product_Target__c masterObj = (Account_Wise_Product_Target__c) masterRecord;
+                if (masterObj.Account_Wise_Product_Target_Line_Item__r != null) {
+                    childList.addAll(masterObj.Account_Wise_Product_Target_Line_Item__r);
+                }
+            }
+        }
+
+        return childList;
+    }
+
+    private static void addTargetFieldError(Map<Id, sObject> newMap, Id recordId, String sObjectTypeName, String fieldName, String errorMessage) {
+        switch on sObjectTypeName {
+            when 'Employee_Wise_Target__c' {
+                if (fieldName == 'Target_Quantity__c') {
+                    ((Employee_Wise_Target__c) newMap.get(recordId)).Target_Quantity__c.addError(errorMessage);
+                } else {
+                    ((Employee_Wise_Target__c) newMap.get(recordId)).Target_Amount__c.addError(errorMessage);
+                }
+            }
+            when 'Employee_Wise_Product_Target__c' {
+                if (fieldName == 'Target_Quantity__c') {
+                    ((Employee_Wise_Product_Target__c) newMap.get(recordId)).Target_Quantity__c.addError(errorMessage);
+                } else {
+                    ((Employee_Wise_Product_Target__c) newMap.get(recordId)).Target_Amount__c.addError(errorMessage);
+                }
+            }
+            when 'Employee_Wise_Account_Target__c' {
+                if (fieldName == 'Target_Quantity__c') {
+                    ((Employee_Wise_Account_Target__c) newMap.get(recordId)).Target_Quantity__c.addError(errorMessage);
+                } else {
+                    ((Employee_Wise_Account_Target__c) newMap.get(recordId)).Target_Amount__c.addError(errorMessage);
+                }
+            }
+            when 'Account_Wise_Product_Target__c' {
+                if (fieldName == 'Target_Quantity__c') {
+                    ((Account_Wise_Product_Target__c) newMap.get(recordId)).Target_Quantity__c.addError(errorMessage);
+                } else {
+                    ((Account_Wise_Product_Target__c) newMap.get(recordId)).Target_Amount__c.addError(errorMessage);
+                }
             }
         }
     }
