@@ -40,6 +40,44 @@
     /* background: #fff; */
 }
 
+.monthlytable td {
+    vertical-align: middle;
+}
+
+.metric-column {
+    min-width: 120px;
+    width: 120px;
+}
+
+.metric-cell {
+    vertical-align: middle;
+}
+
+.metric-label-stack,
+.monthly-input-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.metric-label-stack {
+    align-items: flex-start;
+    min-height: 6.25rem;
+    padding: 0.75rem 0.5rem;
+}
+
+.metric-label {
+    color: #1f1f1f;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.monthly-cell-content {
+    padding: 0.25rem 0;
+}
+
 
 
 

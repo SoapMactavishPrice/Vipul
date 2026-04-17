@@ -176,6 +176,11 @@
                                                 Description
                                             </div>
                                         </th>
+                                        <th if:false={isEmployeeWiseTarget} scope="col" class="metric-column">
+                                            <div class="slds-truncate slds-p-around_xx-small">
+                                                Metric
+                                            </div>
+                                        </th>
                                         <template for:each={months} for:item="item">
                                             <th scope="col" key={item.index}>
                                                 <div class="slds-truncate slds-p-around_xx-small" style="width: 110px">
@@ -202,54 +207,53 @@
                                                 </div>
                                             </td>
                                             <td if:true={productcategory}>
-                                                <div
-                                                    style="display: flex;justify-content: space-around;align-items:center;">
-                                                    <div class="slds-truncate slds-p-around_xx-small">
-                                                        {item.ParameterDesc}
-                                                    </div>
-                                                    <div style="display: flex;flex-direction: column;">
-                                                        <lightning-formatted-text if:false={isEmployeeWiseTarget}
-                                                            class="slds-form-element__label slds-col"
-                                                            style="font-size: medium;"
-                                                            value="Quantity"></lightning-formatted-text><br>
-                                                        <lightning-formatted-text
-                                                            class="slds-form-element__label slds-col"
-                                                            style="font-size: medium;"
-                                                            value="Amount"></lightning-formatted-text>
-                                                    </div>
+                                                <div class="slds-truncate slds-p-around_xx-small">
+                                                    {item.ParameterDesc}
+                                                </div>
+                                            </td>
+                                            <td if:false={isEmployeeWiseTarget} class="metric-column metric-cell">
+                                                <div class="metric-label-stack">
+                                                    <span class="metric-label">Quantity</span>
+                                                    <span class="metric-label">Amount</span>
                                                 </div>
                                             </td>
                                             <template for:each={item.childData} for:item="childItem">
                                                 <td key={childItem.childIndex} class={childItem.className}>
                                                     <div if:true={childItem.targetAmountEdit}
-                                                        class="slds-truncate slds-p-around_none">
-                                                        <lightning-input if:false={isEmployeeWiseTarget}
-                                                            value={childItem.Monthly_Target_Quantity__c} type="number"
-                                                            variant="label-hidden" step="0.01"
-                                                            data-id={item.ParameterId} data-type="qty"
-                                                            data-childid={childItem.ParameterId} onchange={onDataInput}
-                                                            disabled={isNotSystemAdmin}>
-                                                        </lightning-input><br>
-                                                        <lightning-input value={childItem.Monthly_Target_Amount__c}
-                                                            type="number" variant="label-hidden" step="0.01"
-                                                            data-id={item.ParameterId} data-type="amt"
-                                                            data-childid={childItem.ParameterId} onchange={onDataInput}
-                                                            disabled={isNotSystemAdmin}>
-                                                        </lightning-input>
+                                                        class="monthly-cell-content">
+                                                        <div class="monthly-input-stack">
+                                                            <lightning-input if:false={isEmployeeWiseTarget}
+                                                                value={childItem.Monthly_Target_Quantity__c}
+                                                                type="number" variant="label-hidden" step="0.01"
+                                                                data-id={item.ParameterId} data-type="qty"
+                                                                data-childid={childItem.ParameterId}
+                                                                onchange={onDataInput} disabled={isNotSystemAdmin}>
+                                                            </lightning-input>
+                                                            <lightning-input
+                                                                value={childItem.Monthly_Target_Amount__c}
+                                                                type="number" variant="label-hidden" step="0.01"
+                                                                data-id={item.ParameterId} data-type="amt"
+                                                                data-childid={childItem.ParameterId}
+                                                                onchange={onDataInput} disabled={isNotSystemAdmin}>
+                                                            </lightning-input>
+                                                        </div>
                                                         <div data-childid={childItem.ParameterId}
                                                             class="slds-form-element__help"
                                                             style="color: var(--slds-g-color-error-base-40,#ea001e)">
                                                         </div>
                                                     </div>
                                                     <div if:false={childItem.targetAmountEdit}
-                                                        class="slds-truncate slds-p-around_xx-small">
-                                                        <lightning-input if:false={isEmployeeWiseTarget}
-                                                            value={childItem.Monthly_Target_Quantity__c} type="number"
-                                                            variant="label-hidden" disabled>
-                                                        </lightning-input><br>
-                                                        <lightning-input value={childItem.Monthly_Target_Amount__c}
-                                                            type="number" variant="label-hidden"
-                                                            disabled></lightning-input>
+                                                        class="monthly-cell-content">
+                                                        <div class="monthly-input-stack">
+                                                            <lightning-input if:false={isEmployeeWiseTarget}
+                                                                value={childItem.Monthly_Target_Quantity__c}
+                                                                type="number" variant="label-hidden" disabled>
+                                                            </lightning-input>
+                                                            <lightning-input
+                                                                value={childItem.Monthly_Target_Amount__c}
+                                                                type="number" variant="label-hidden"
+                                                                disabled></lightning-input>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </template>
